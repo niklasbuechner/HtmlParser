@@ -1,12 +1,19 @@
 <?php
 namespace HtmlParser\Tokenizer\Tokens;
 
+use HtmlParser\Tokenizer\Structs\AttributeStruct;
+
 class TagToken implements Token
 {
     /**
      * @var string
      */
     private $name;
+
+    /**
+     * @var AttributeStruct
+     */
+    private $currentAttribute;
 
     public function __construct()
     {
@@ -34,6 +41,22 @@ class TagToken implements Token
      */
     public function appendCharacterToName($character)
     {
-        $this->name .= $character;
+        $this->name .= mb_strtolower($character);
+    }
+
+    /**
+     * @param AttributeStruct
+     */
+    public function setCurrentAttribute(AttributeStruct $attribute)
+    {
+        $this->currentAttribute = $attribute;
+    }
+
+    /**
+     * @return AttributeStruct
+     */
+    public function getCurrentAttribute()
+    {
+        return $this->currentAttribute;
     }
 }

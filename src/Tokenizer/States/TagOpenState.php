@@ -25,6 +25,8 @@ class TagOpenState implements State
 
                     $tagNameState->processCharacter($character, $tokenizer);
                 }
+                break;
+            // TODO invalid first character error
         }
     }
 }
