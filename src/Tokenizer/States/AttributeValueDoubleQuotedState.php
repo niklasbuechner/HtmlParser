@@ -14,8 +14,9 @@ class AttributeValueDoubleQuotedState implements State
             // case '"': TODO
             case '&':
                 $tokenizer->setState(
-                    new CharacterReferenceState($this)
+                    new CharacterReferenceState($tokenizer)
                 );
+                $tokenizer->setReturnState($this);
                 break;
 
             default:

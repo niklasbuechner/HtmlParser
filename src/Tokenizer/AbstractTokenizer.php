@@ -20,7 +20,17 @@ abstract class AbstractTokenizer implements Tokenizer
     /**
      * @var State
      */
+    protected $returnState;
+
+    /**
+     * @var State
+     */
     protected $state;
+
+    /**
+     * @var string
+     */
+    protected $temporaryBuffer;
 
     /**
      * @inheritdoc
@@ -30,6 +40,22 @@ abstract class AbstractTokenizer implements Tokenizer
     public function __construct(TokenListener $tokenListener)
     {
         $this->listener = $tokenListener;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setReturnState(State $state)
+    {
+        $this->returnState = $state;
+    }
+
+    /**
+     * @return State
+     */
+    public function getReturnState()
+    {
+        return $this->returnState;
     }
 
     /**
@@ -70,5 +96,21 @@ abstract class AbstractTokenizer implements Tokenizer
     public function emitCurrentToken()
     {
         $this->listener->emitToken($this->currentToken);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function appendToTemporaryBuffer($character)
+    {
+        $this->temporaryBuffer .= $character;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTemporaryBuffer()
+    {
+        return $this->temporaryBuffer;
     }
 }

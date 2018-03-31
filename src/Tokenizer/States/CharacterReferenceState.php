@@ -5,14 +5,9 @@ use HtmlParser\Tokenizer\Tokenizer;
 
 class CharacterReferenceState implements State
 {
-    /**
-     * @var State
-     */
-    private $returnState;
-
-    public function __construct(State $returnState)
+    public function __construct(Tokenizer $tokenizer)
     {
-        $this->returnState = $returnState;
+        $tokenizer->appendToTemporaryBuffer('&');
     }
 
     /**
@@ -22,11 +17,14 @@ class CharacterReferenceState implements State
     {
         switch ($character) {
             case '#':
-                # code...
+                # TODO
                 break;
 
             default:
-                # code...
+                if (preg_match('/[a-zA-Z0-9]/', $character)) {
+                    $tokenizer->setState(new NamedCharacterReferenceState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
+                }
                 break;
         }
     }
