@@ -3,6 +3,7 @@ namespace HtmlParser\Tests\Tokenizer\States;
 
 use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\AttributeNameState;
+use HtmlParser\Tokenizer\States\BeforeAttributeValueState;
 use HtmlParser\Tokenizer\Structs\AttributeStruct;
 use HtmlParser\Tokenizer\Tokens\TagToken;
 use PHPUnit\Framework\TestCase;
@@ -26,5 +27,25 @@ class AttributeNameStateTest extends TestCase
 
         $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
         $this->assertEquals('href', $attribute->getName());
+    }
+
+    public function testAttributeNameEndingInEqualsSign()
+    {
+        $tagToken = new TagToken();
+        $tagToken->setCurrentAttribute(new AttributeStruct());
+
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setCurrentToken($tagToken);
+
+        $attributeNameState = new AttributeNameState();
+
+        $attributeNameState->processCharacter('s', $tokenizer);
+        $attributeNameState->processCharacter('r', $tokenizer);
+        $attributeNameState->processCharacter('c', $tokenizer);
+        $attributeNameState->processCharacter('=', $tokenizer);
+
+        $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
+        $this->assertEquals('src', $attribute->getName());
+        $this->assertInstanceOf(BeforeAttributeValueState::class, $tokenizer->getState());
     }
 }

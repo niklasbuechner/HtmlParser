@@ -13,7 +13,9 @@ class AttributeNameState implements State
         switch ($character) {
             // case '/':
             // case '>':
-            // case '=':
+            case '=':
+                $tokenizer->setState(new BeforeAttributeValueState());
+                break;
 
             default:
                 $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
