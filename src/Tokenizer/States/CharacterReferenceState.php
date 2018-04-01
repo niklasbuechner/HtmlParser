@@ -17,7 +17,8 @@ class CharacterReferenceState implements State
     {
         switch ($character) {
             case '#':
-                # TODO
+                $tokenizer->appendToTemporaryBuffer('#');
+                $tokenizer->setState(new NumericCharacterReferenceState());
                 break;
 
             default:

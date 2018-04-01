@@ -1,9 +1,6 @@
 <?php
 namespace HtmlParser\Tokenizer\States;
 
-use HtmlParser\Tokenizer\States\BeforeAttributeNameState;
-use HtmlParser\Tokenizer\States\DataState;
-use HtmlParser\Tokenizer\States\State;
 use HtmlParser\Tokenizer\Tokenizer;
 
 class TagNameState implements State

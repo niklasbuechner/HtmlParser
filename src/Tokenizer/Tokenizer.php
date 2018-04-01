@@ -46,6 +46,14 @@ interface Tokenizer
     public function getTemporaryBuffer();
 
     /**
+     * Temporary variable to calculate the correct unicode character of the
+     * NumericCharacterReferenceState.
+     *
+     * @param int $characterReferenceCode
+     */
+    public function setCharacterReferenceCode($characterReferenceCode);
+
+    /**
      * Emits the current token to the listener of the Tokenizers.
      */
     public function emitCurrentToken();

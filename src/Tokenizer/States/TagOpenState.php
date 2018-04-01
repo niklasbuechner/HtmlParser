@@ -1,7 +1,6 @@
 <?php
 namespace HtmlParser\Tokenizer\States;
 
-use HtmlParser\Tokenizer\States\TagNameState;
 use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\Tokenizer\Tokens\TagToken;
 

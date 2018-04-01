@@ -34,7 +34,7 @@ class AttributeValueDoubleQuotedStateTest extends TestCase
         $this->assertEquals('hello world', $tagToken->getCurrentAttribute()->getValue());
     }
 
-    public function testCharacterReferenceInAttributeValue()
+    public function testNamedCharacterReferenceInAttributeValue()
     {
         $tagToken = new TagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());

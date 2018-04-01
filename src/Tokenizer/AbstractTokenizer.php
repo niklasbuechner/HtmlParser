@@ -13,6 +13,11 @@ abstract class AbstractTokenizer implements Tokenizer
     protected $currentToken;
 
     /**
+     * @var int
+     */
+    protected $characterReferenceCode;
+
+    /**
      * @var TokenListener
      */
     protected $listener;
@@ -40,6 +45,22 @@ abstract class AbstractTokenizer implements Tokenizer
     public function __construct(TokenListener $tokenListener)
     {
         $this->listener = $tokenListener;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCharacterReferenceCode($characterReferenceCode)
+    {
+        $this->characterReferenceCode = $characterReferenceCode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCharacterReferenceCode()
+    {
+        return $this->characterReferenceCode;
     }
 
     /**
