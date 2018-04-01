@@ -5,7 +5,7 @@ use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\AttributeValueDoubleQuotedState;
 use HtmlParser\Tokenizer\States\CharacterReferenceState;
 use HtmlParser\Tokenizer\Structs\AttributeStruct;
-use HtmlParser\Tokenizer\Tokens\TagToken;
+use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use PHPUnit\Framework\TestCase;
 
 class CharacterReferenceStateTest extends TestCase
@@ -32,7 +32,7 @@ class CharacterReferenceStateTest extends TestCase
 
     public function testNamedCharacterReference()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
@@ -53,7 +53,7 @@ class CharacterReferenceStateTest extends TestCase
 
     public function testDecimalNumericReference()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
@@ -74,7 +74,7 @@ class CharacterReferenceStateTest extends TestCase
 
     public function testHexadecimalNumericReference()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();

@@ -4,7 +4,7 @@ namespace HtmlParser\Tests\Tokenizer\States;
 use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\TagNameState;
 use HtmlParser\Tokenizer\States\TagOpenState;
-use HtmlParser\Tokenizer\Tokens\TagToken;
+use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use PHPUnit\Framework\TestCase;
 
 class TagOpenStateTest extends TestCase
@@ -17,8 +17,18 @@ class TagOpenStateTest extends TestCase
         $tagOpenState->processCharacter('a', $tokenizer);
 
         $currentToken = $tokenizer->getCurrentToken();
-        $this->assertTrue($tokenizer->getState() instanceof TagNameState);
-        $this->assertTrue($currentToken instanceof TagToken);
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\TagNameState', $tokenizer->getState());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\StartTagToken', $currentToken);
         $this->assertEquals('a', $currentToken->getName());
+    }
+
+    public function testClosingTagOpened()
+    {
+        $tokenizer = new TestTokenizer();
+        $tagOpenState = new TagOpenState();
+
+        $tagOpenState->processCharacter('/', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\EndTagOpenState', $tokenizer->getState());
     }
 }

@@ -5,14 +5,14 @@ use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\AttributeNameState;
 use HtmlParser\Tokenizer\States\BeforeAttributeValueState;
 use HtmlParser\Tokenizer\Structs\AttributeStruct;
-use HtmlParser\Tokenizer\Tokens\TagToken;
+use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use PHPUnit\Framework\TestCase;
 
 class AttributeNameStateTest extends TestCase
 {
     public function testAsciiAttributeName()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
@@ -31,7 +31,7 @@ class AttributeNameStateTest extends TestCase
 
     public function testAttributeNameEndingInEqualsSign()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();

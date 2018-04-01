@@ -3,12 +3,17 @@ namespace HtmlParser\Tokenizer\Tokens;
 
 use HtmlParser\Tokenizer\Structs\AttributeStruct;
 
-class TagToken implements Token
+class StartTagToken implements Token
 {
     /**
      * @var string
      */
     private $name;
+
+    /**
+     * @var AttributeStruct[]
+     */
+    private $attributes;
 
     /**
      * @var AttributeStruct
@@ -18,14 +23,6 @@ class TagToken implements Token
     public function __construct()
     {
         $this->name = '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getValue()
-    {
-        return $this->name;
     }
 
     /**
@@ -49,6 +46,7 @@ class TagToken implements Token
      */
     public function setCurrentAttribute(AttributeStruct $attribute)
     {
+        $this->saveCurrentAttribute();
         $this->currentAttribute = $attribute;
     }
 
@@ -58,5 +56,32 @@ class TagToken implements Token
     public function getCurrentAttribute()
     {
         return $this->currentAttribute;
+    }
+
+    /**
+     * @return AttributeStruct[]
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function prepareEmit()
+    {
+        $this->saveCurrentAttribute();
+    }
+
+    /**
+     * Adds the current attribute to the attribute stack and resets the current attribute pointer.
+     */
+    private function saveCurrentAttribute()
+    {
+        if ($this->currentAttribute) {
+            $this->attributes[] = $this->currentAttribute;
+            $this->currentAttribute = null;
+        }
     }
 }

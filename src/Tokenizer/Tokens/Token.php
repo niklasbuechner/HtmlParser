@@ -4,7 +4,7 @@ namespace HtmlParser\Tokenizer\Tokens;
 interface Token
 {
     /**
-     * @return mixed
+     * Clean up all lose ends so that the token may be emitted.
      */
-    public function getValue();
+    public function prepareEmit();
 }

@@ -4,14 +4,14 @@ namespace HtmlParser\Tests\Tokenizer\States;
 use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\AttributeValueDoubleQuotedState;
 use HtmlParser\Tokenizer\Structs\AttributeStruct;
-use HtmlParser\Tokenizer\Tokens\TagToken;
+use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use PHPUnit\Framework\TestCase;
 
 class AttributeValueDoubleQuotedStateTest extends TestCase
 {
     public function testAddCharactersToAttributeValue()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
@@ -36,7 +36,7 @@ class AttributeValueDoubleQuotedStateTest extends TestCase
 
     public function testNamedCharacterReferenceInAttributeValue()
     {
-        $tagToken = new TagToken();
+        $tagToken = new StartTagToken();
         $tagToken->setCurrentAttribute(new AttributeStruct());
 
         $attributeValueDoubleQuotedState = new AttributeValueDoubleQuotedState();
@@ -55,5 +55,17 @@ class AttributeValueDoubleQuotedStateTest extends TestCase
         $tokenizer->getState()->processCharacter(';', $tokenizer);
 
         $this->assertEquals('ü', $tagToken->getCurrentAttribute()->getValue());
+    }
+
+    public function testClosingAttributeValue()
+    {
+        $attributeValueDoubleQuotedState = new AttributeValueDoubleQuotedState();
+        $tokenizer = new TestTokenizer();
+
+        // Careful, the state changes during the character processing.
+        // It is set on the tokenizer.
+        $attributeValueDoubleQuotedState->processCharacter('"', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeValueQuotedState', $tokenizer->getState());
     }
 }

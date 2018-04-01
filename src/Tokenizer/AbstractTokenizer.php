@@ -116,7 +116,16 @@ abstract class AbstractTokenizer implements Tokenizer
      */
     public function emitCurrentToken()
     {
-        $this->listener->emitToken($this->currentToken);
+        $this->emitToken($this->currentToken);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function emitToken(Token $token)
+    {
+        $token->prepareEmit();
+        $this->listener->emitToken($token);
     }
 
     /**

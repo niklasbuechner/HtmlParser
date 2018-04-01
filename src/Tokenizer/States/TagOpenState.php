@@ -2,7 +2,7 @@
 namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
-use HtmlParser\Tokenizer\Tokens\TagToken;
+use HtmlParser\Tokenizer\Tokens\StartTagToken;
 
 class TagOpenState implements State
 {
@@ -13,14 +13,16 @@ class TagOpenState implements State
     {
         switch ($character) {
             // case '!': TODO
-            // case '/':
+            case '/':
+                $tokenizer->setState(new EndTagOpenState());
+                break;
             // case '?':
             // case 'EOL':
             default:
                 if (preg_match('/[a-zA-Z]/', $character)) {
                     $tagNameState = new TagNameState();
                     $tokenizer->setState($tagNameState);
-                    $tokenizer->setCurrentToken(new TagToken());
+                    $tokenizer->setCurrentToken(new StartTagToken());
 
                     $tagNameState->processCharacter($character, $tokenizer);
                 }

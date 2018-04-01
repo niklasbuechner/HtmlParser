@@ -5,7 +5,7 @@ use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\BeforeAttributeNameState;
 use HtmlParser\Tokenizer\States\DataState;
 use HtmlParser\Tokenizer\States\TagNameState;
-use HtmlParser\Tokenizer\Tokens\TagToken;
+use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use PHPUnit\Framework\TestCase;
 
 class TagNameStateTest extends TestCase
@@ -15,7 +15,7 @@ class TagNameStateTest extends TestCase
         $tokenizer = new TestTokenizer();
         $tagNameState = new TagNameState();
 
-        $tokenizer->setCurrentToken(new TagToken());
+        $tokenizer->setCurrentToken(new StartTagToken());
         $tagNameState->processCharacter('d', $tokenizer);
         $tagNameState->processCharacter('i', $tokenizer);
         $tagNameState->processCharacter('v', $tokenizer);
@@ -24,7 +24,7 @@ class TagNameStateTest extends TestCase
         $currentToken = $tokenizer->getCurrentToken();
 
         $this->assertEquals('div', $currentToken->getName());
-        $this->assertTrue($tokenizer->getState() instanceof BeforeAttributeNameState);
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\BeforeAttributeNameState', $tokenizer->getState());
     }
 
     public function testTagNameEndingInTheClosingTagBracket()
@@ -32,7 +32,7 @@ class TagNameStateTest extends TestCase
         $tokenizer = new TestTokenizer();
         $tagNameState = new TagNameState();
 
-        $tokenizer->setCurrentToken(new TagToken());
+        $tokenizer->setCurrentToken(new StartTagToken());
         $tagNameState->processCharacter('p', $tokenizer);
         $tagNameState->processCharacter('>', $tokenizer);
 
@@ -41,8 +41,8 @@ class TagNameStateTest extends TestCase
         $emittedTokens = $tokenListener->getEmittedTokens();
 
         $this->assertEquals('p', $currentToken->getName());
-        $this->assertTrue($tokenizer->getState() instanceof DataState);
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DataState', $tokenizer->getState());
         $this->assertEquals(1, count($emittedTokens));
-        $this->assertTrue($emittedTokens[0] instanceof TagToken);
+        $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\StartTagToken', $emittedTokens[0]);
     }
 }

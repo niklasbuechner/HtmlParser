@@ -11,7 +11,10 @@ class AttributeValueDoubleQuotedState implements State
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
-            // case '"': TODO
+            case '"':
+                $tokenizer->setState(new AfterAttributeValueQuotedState());
+                break;
+
             case '&':
                 $tokenizer->setState(
                     new CharacterReferenceState($tokenizer)

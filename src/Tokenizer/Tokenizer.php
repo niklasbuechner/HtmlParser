@@ -2,9 +2,15 @@
 namespace HtmlParser\Tokenizer;
 
 use HtmlParser\Tokenizer\States\State;
+use HtmlParser\Tokenizer\Tokens\Token;
 
 interface Tokenizer
 {
+    /**
+     * Character the tokenizer processes to signal an end of file.
+     */
+    const END_OF_FILE_CHARACTER = null;
+
     /**
      * Main function to tokenize HTML strings.
      *
@@ -57,4 +63,9 @@ interface Tokenizer
      * Emits the current token to the listener of the Tokenizers.
      */
     public function emitCurrentToken();
+
+    /**
+     * Emits the given token to the listener.
+     */
+    public function emitToken(Token $token);
 }
