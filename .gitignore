@@ -12,3 +12,5 @@ clover.xml
 
 # Ignore IDE's configuration files
 .idea
+
+/ignore/

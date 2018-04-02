@@ -16,10 +16,11 @@ class HtmlTokenizer extends AbstractTokenizer
     public function tokenize($htmlString)
     {
         $this->setState(new DataState());
-        $stringLength = mb_strlen($htmlString);
+        $characters = preg_split('//u', $htmlString, -1, PREG_SPLIT_NO_EMPTY);
+        $stringLength = count($characters);
 
         for ($i = 0; $i < $stringLength; $i++) {
-            $currentCharacter = mb_substr($htmlString, $i, 1);
+            $currentCharacter = $characters[$i];
             $this->state->processCharacter($currentCharacter, $this);
         }
 
