@@ -14,14 +14,6 @@ class TestTokenizer extends AbstractTokenizer
     }
 
     /**
-     * @inheritdoc
-     */
-    public function tokenize($htmlString)
-    {
-        throw new Exception('->tokenize called on TestTokenizer');
-    }
-
-    /**
      * Returns the current TokenListener.
      *
      * @return TokenListener

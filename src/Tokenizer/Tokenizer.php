@@ -68,4 +68,19 @@ interface Tokenizer
      * Emits the given token to the listener.
      */
     public function emitToken(Token $token);
+
+    /**
+     * Returns the next characters which will be consumed
+     *
+     * @param int $amount
+     * @return string
+     */
+    public function getNextCharacters($amount);
+
+    /**
+     * Consumes the next characters to prevent further processing.
+     *
+     * @param int $amount
+     */
+    public function consumeNextCharacters($amount);
 }

@@ -1,6 +1,7 @@
 <?php
 namespace HtmlParser\Tokenizer;
 
+use HtmlParser\Tokenizer\States\DataState;
 use HtmlParser\Tokenizer\States\State;
 use HtmlParser\Tokenizer\TokenListener;
 use HtmlParser\Tokenizer\Tokens\Token;
@@ -11,6 +12,16 @@ abstract class AbstractTokenizer implements Tokenizer
      * @var Token
      */
     protected $currentToken;
+
+    /**
+     * @var string[]
+     */
+    protected $characterArray;
+
+    /**
+     * @var int
+     */
+    protected $characterIndex;
 
     /**
      * @var int
@@ -40,7 +51,42 @@ abstract class AbstractTokenizer implements Tokenizer
     /**
      * @inheritdoc
      */
-    abstract public function tokenize($htmlString);
+    public function tokenize($htmlString)
+    {
+        $this->characterArray = preg_split('//u', $htmlString, -1, PREG_SPLIT_NO_EMPTY);
+        $stringLength = count($this->characterArray);
+
+        for ($this->characterIndex = 0; $this->characterIndex < $stringLength; $this->characterIndex += 1) {
+            $currentCharacter = $this->characterArray[$this->characterIndex];
+            $this->state->processCharacter($currentCharacter, $this);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getNextCharacters($amount)
+    {
+        $result = '';
+
+        //TODO throw error if more characters are wanted than are left.
+
+        for ($counter = $this->characterIndex + 1;
+            $counter <= $this->characterIndex + $amount && $counter <count($this->characterArray);
+            $counter += 1) {
+            $result .= $this->characterArray[$counter];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function consumeNextCharacters($amount)
+    {
+        $this->characterIndex += $amount;
+    }
 
     public function __construct(TokenListener $tokenListener)
     {

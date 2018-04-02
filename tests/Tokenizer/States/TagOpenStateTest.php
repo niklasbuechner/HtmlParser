@@ -31,4 +31,14 @@ class TagOpenStateTest extends TestCase
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\EndTagOpenState', $tokenizer->getState());
     }
+
+    public function testMarkupDeclarationOpenState()
+    {
+        $tokenizer = new TestTokenizer();
+        $tagOpenState = new TagOpenState();
+
+        $tagOpenState->processCharacter('!', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\MarkupDeclarationOpenState', $tokenizer->getState());
+    }
 }

@@ -16,16 +16,9 @@ class HtmlTokenizer extends AbstractTokenizer
     public function tokenize($htmlString)
     {
         $this->setState(new DataState());
-        $characters = preg_split('//u', $htmlString, -1, PREG_SPLIT_NO_EMPTY);
-        $stringLength = count($characters);
 
-        for ($i = 0; $i < $stringLength; $i++) {
-            $currentCharacter = $characters[$i];
-            $this->state->processCharacter($currentCharacter, $this);
-        }
+        parent::tokenize($htmlString);
 
         $this->state->processCharacter(Tokenizer::END_OF_FILE_CHARACTER, $this);
-
-        return [];
     }
 }

@@ -13,12 +13,12 @@ class DataState implements State
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
+            case "<":
+                $tokenizer->setState(new TagOpenState());
+                break;
             case "&":
                 $tokenizer->setReturnState($this);
                 $tokenizer->setState(new CharacterReferenceState($tokenizer));
-                break;
-            case "<":
-                $tokenizer->setState(new TagOpenState());
                 break;
             case Tokenizer::END_OF_FILE_CHARACTER:
                 $tokenizer->emitToken(new EndOfFileToken());

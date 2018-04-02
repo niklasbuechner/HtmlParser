@@ -12,11 +12,13 @@ class TagOpenState implements State
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
-            // case '!': TODO
             case '/':
                 $tokenizer->setState(new EndTagOpenState());
                 break;
-            // case '?':
+            case '!':
+                $tokenizer->setState(new MarkupDeclarationOpenState());
+                break;
+            // case '?': TODO
             // case 'EOL':
             default:
                 if (preg_match('/[a-zA-Z]/', $character)) {
