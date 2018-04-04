@@ -2,7 +2,6 @@
 namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
-use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 
 class CommentEndBangState implements State
 {
@@ -16,16 +15,19 @@ class CommentEndBangState implements State
                 $tokenizer->getCurrentToken()->appendCharacterToData('--!');
                 $tokenizer->setState(new CommentEndDashState());
                 break;
+
             case '>':
                 // incorrectly-closed-comment error TODO
                 $tokenizer->setState(new DataState);
                 $tokenizer->emitCurrentToken();
                 break;
+
             case Tokenizer::END_OF_FILE_CHARACTER:
                 // eof-in-comment error TODO
                 $tokenizer->emitCurrentToken();
-                $tokenizer->emitToken(new EndOfFileToken());
+                $tokenizer->emitEofToken();
                 break;
+
             default:
                 $tokenizer->getCurrentToken()->appendCharacterToData('--!');
                 $tokenizer->setState(new CommentState());

@@ -3,7 +3,6 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\Tokenizer\Tokens\CharacterToken;
-use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 
 class DataState implements State
 {
@@ -16,13 +15,16 @@ class DataState implements State
             case "<":
                 $tokenizer->setState(new TagOpenState());
                 break;
+
             case "&":
                 $tokenizer->setReturnState($this);
                 $tokenizer->setState(new CharacterReferenceState($tokenizer));
                 break;
+
             case Tokenizer::END_OF_FILE_CHARACTER:
-                $tokenizer->emitToken(new EndOfFileToken());
+                $tokenizer->emitEofToken();
                 break;
+
             default:
                 $tokenizer->emitToken(new CharacterToken($character));
                 break;

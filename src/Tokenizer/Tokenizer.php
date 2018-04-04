@@ -65,6 +65,11 @@ interface Tokenizer
     public function emitCurrentToken();
 
     /**
+     * Special function to emit an end of file token.
+     */
+    public function emitEofToken();
+
+    /**
      * Emits the given token to the listener.
      */
     public function emitToken(Token $token);

@@ -21,6 +21,7 @@ class TagNameState implements State
                 $tokenizer->setState(new DataState());
                 $tokenizer->emitCurrentToken();
                 break;
+
             default:
                 if (preg_match('/\s/', $character)) {
                     $tokenizer->setState(new BeforeAttributeNameState());

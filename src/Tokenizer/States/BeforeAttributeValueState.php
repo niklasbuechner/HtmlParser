@@ -14,9 +14,11 @@ class BeforeAttributeValueState implements State
             case '"':
                 $tokenizer->setState(new AttributeValueDoubleQuotedState());
                 break;
+
             case '\'':
             //TODO
                 break;
+
             default:
                 break;
         }

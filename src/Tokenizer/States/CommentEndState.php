@@ -15,12 +15,20 @@ class CommentEndState implements State
                 $tokenizer->emitCurrentToken();
                 $tokenizer->setState(new DataState());
                 break;
+
             case '-':
                 $tokenizer->getCurrentToken()->appendCharacterToData('-');
                 break;
+
             case '!':
                 $tokenizer->setState(new CommentEndBangState());
                 break;
+
+            case Tokenizer::END_OF_FILE_CHARACTER:
+                $tokenizer->emitCurrentToken();
+                $tokenizer->emitEofToken();
+                break;
+
             default:
                 $tokenizer->getCurrentToken()->appendCharacterToData('--');
                 $tokenizer->setState(new CommentState());

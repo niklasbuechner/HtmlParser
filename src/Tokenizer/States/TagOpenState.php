@@ -15,11 +15,14 @@ class TagOpenState implements State
             case '/':
                 $tokenizer->setState(new EndTagOpenState());
                 break;
+
             case '!':
                 $tokenizer->setState(new MarkupDeclarationOpenState());
                 break;
+
             // case '?': TODO
             // case 'EOL':
+
             default:
                 if (preg_match('/[a-zA-Z]/', $character)) {
                     $tagNameState = new TagNameState();

@@ -3,7 +3,7 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 
-class CommentStartState implements State
+class CommentLessThanSignBangDashDashState implements State
 {
     /**
      * @inheritdoc
@@ -11,18 +11,15 @@ class CommentStartState implements State
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
-            case '-':
-                $tokenizer->setState(new CommentStartDashState());
-                break;
-
             case '>':
-                // abrupt-closing-of-empty-comment error
-                $tokenizer->emitCurrentToken();
-                $tokenizer->setState(new DataState());
+            case Tokenizer::END_OF_FILE_CHARACTER:
+                $tokenizer->setState(new CommentEndState());
+                $tokenizer->getState()->processCharacter($character, $tokenizer);
                 break;
 
             default:
-                $tokenizer->setState(new CommentState());
+                // Nested comment parser error
+                $tokenizer->setState(new CommentEndState());
                 $tokenizer->getState()->processCharacter($character, $tokenizer);
                 break;
         }

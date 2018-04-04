@@ -15,9 +15,11 @@ class CommentLessThanSignState implements State
                 $tokenizer->getCurrentToken()->appendCharacterToData('!');
                 $tokenizer->setState(new CommentLessThanSignBangState());
                 break;
+
             case '<':
                 $tokenizer->getCurrentToken()->appendCharacterToData('<');
                 break;
+
             default:
                 $tokenizer->setState(new CommentState());
                 $tokenizer->getState()->processCharacter($character, $tokenizer);

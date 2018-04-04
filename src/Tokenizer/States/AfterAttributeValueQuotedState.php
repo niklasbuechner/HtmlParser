@@ -13,10 +13,12 @@ class AfterAttributeValueQuotedState implements State
         switch ($character) {
             case '/':
                 break;
+
             case '>':
                 $tokenizer->setState(new DataState());
                 $tokenizer->emitCurrentToken();
                 break;
+
             default:
                 if (preg_match('/\s/', $character)) {
                     $tokenizer->setState(new BeforeAttributeNameState());

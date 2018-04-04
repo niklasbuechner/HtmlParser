@@ -5,6 +5,7 @@ use HtmlParser\Tokenizer\States\DataState;
 use HtmlParser\Tokenizer\States\State;
 use HtmlParser\Tokenizer\TokenListener;
 use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 
 abstract class AbstractTokenizer implements Tokenizer
 {
@@ -163,6 +164,14 @@ abstract class AbstractTokenizer implements Tokenizer
     public function emitCurrentToken()
     {
         $this->emitToken($this->currentToken);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function emitEofToken()
+    {
+        $this->emitToken(new EndOfFileToken());
     }
 
     /**

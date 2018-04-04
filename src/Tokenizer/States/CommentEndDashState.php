@@ -15,6 +15,12 @@ class CommentEndDashState implements State
                 $tokenizer->setState(new CommentEndState());
                 break;
 
+            case Tokenizer::END_OF_FILE_CHARACTER:
+                // Eof-in-comment parser error
+                $tokenizer->emitCurrentToken();
+                $tokenizer->emitEofToken();
+                break;
+
             default:
                 $tokenizer->getCurrentToken()->appendCharacterToData('-');
 
