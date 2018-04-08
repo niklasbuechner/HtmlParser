@@ -16,10 +16,14 @@ class BeforeAttributeValueState implements State
                 break;
 
             case '\'':
-            //TODO
+                $tokenizer->setState(new AttributeValueSingleQuotedState());
                 break;
 
             default:
+                if (!preg_match('/\s/', $character)) {
+                    $tokenizer->setState(new AttributeValueUnquotedState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
+                }
                 break;
         }
     }

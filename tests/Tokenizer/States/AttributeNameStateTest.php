@@ -46,7 +46,7 @@ class AttributeNameStateTest extends TestCase
 
         $attribute = $tokenizer->getToken()->getCurrentAttribute();
         $this->assertEquals('src', $attribute->getName());
-        $this->assertInstanceOf(BeforeAttributeValueState::class, $tokenizer->getState());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\BeforeAttributeValueState', $tokenizer->getState());
     }
 
     public function testWhiteSpaceAfterAttributeName()
@@ -66,16 +66,19 @@ class AttributeNameStateTest extends TestCase
 
         $attributeNameState->processCharacter('/', $tokenizer);
 
-        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+        // State is changed within the AfterAttributeNameState again.
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\SelfClosingStartTagState', $tokenizer->getState());
     }
 
     public function testTagEnd()
     {
         $tokenizer = new TestTokenizer();
-        $attributeNameState = new AttributeNameState();
+        $tokenizer->setToken(new StartTagToken());
 
+        $attributeNameState = new AttributeNameState();
         $attributeNameState->processCharacter('>', $tokenizer);
 
-        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+        // State is changed in the AfterAttributeNameState again.
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DataState', $tokenizer->getState());
     }
 }

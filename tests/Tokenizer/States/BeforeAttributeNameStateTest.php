@@ -28,17 +28,20 @@ class BeforeAttributeNameStateTest extends TestCase
 
         $beforeAttributeNameState->processCharacter('/', $tokenizer);
 
-        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+        // State is changed by the AfterAttributeNameState again.
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\SelfClosingStartTagState', $tokenizer->getState());
     }
 
     public function testTagEnd()
     {
         $tokenizer = new TestTokenizer();
-        $beforeAttributeNameState = new BeforeAttributeNameState();
+        $tokenizer->setToken(new StartTagToken());
 
+        $beforeAttributeNameState = new BeforeAttributeNameState();
         $beforeAttributeNameState->processCharacter('>', $tokenizer);
 
-        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+        // State is changed in the AfterAttributeNameState again.
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DataState', $tokenizer->getState());
     }
 
     public function testEndOfFile()
