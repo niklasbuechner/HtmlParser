@@ -13,7 +13,7 @@ class BeforeAttributeNameStateTest extends TestCase
     public function testStartOfAttribute()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new StartTagToken);
+        $tokenizer->setToken(new StartTagToken);
         $beforeAttributeNameState = new BeforeAttributeNameState();
 
         $beforeAttributeNameState->processCharacter('h', $tokenizer);
@@ -54,12 +54,12 @@ class BeforeAttributeNameStateTest extends TestCase
     public function testStrayEqualsSign()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new StartTagToken);
+        $tokenizer->setToken(new StartTagToken);
 
         $beforeAttributeNameState = new BeforeAttributeNameState();
         $beforeAttributeNameState->processCharacter('=', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\AttributeNameState', $tokenizer->getState());
-        $this->assertInstanceOf('HtmlParser\Tokenizer\Structs\AttributeStruct', $tokenizer->getCurrentToken()->getCurrentAttribute());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\Structs\AttributeStruct', $tokenizer->getToken()->getCurrentAttribute());
     }
 }

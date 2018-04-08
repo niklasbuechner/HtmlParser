@@ -22,7 +22,7 @@ class AfterAttributeValueQuotedStateTest extends TestCase
     {
         $tagToken = new StartTagToken();
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         $afterAttributeValueQuotedState = new AfterAttributeValueQuotedState();
         $afterAttributeValueQuotedState->processCharacter('>', $tokenizer);

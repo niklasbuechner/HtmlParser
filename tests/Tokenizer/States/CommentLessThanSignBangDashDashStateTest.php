@@ -11,7 +11,7 @@ class CommentLessThanSignBangDashDashStateTest extends TestCase
     public function testForEndOfNestedComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentLessThanSignBangDashDashState = new CommentLessThanSignBangDashDashState();
         $commentLessThanSignBangDashDashState->processCharacter('>', $tokenizer);
@@ -26,7 +26,7 @@ class CommentLessThanSignBangDashDashStateTest extends TestCase
     public function testForOpeningNestedCommentWithoutClosing()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentLessThanSignBangDashDashState = new CommentLessThanSignBangDashDashState();
         $commentLessThanSignBangDashDashState->processCharacter(' ', $tokenizer);

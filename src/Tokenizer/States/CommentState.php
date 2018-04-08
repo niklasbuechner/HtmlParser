@@ -12,7 +12,7 @@ class CommentState implements State
     {
         switch ($character) {
             case '<':
-                $tokenizer->getCurrentToken()->appendCharacterToData('<');
+                $tokenizer->getToken()->appendCharacterToData('<');
                 $tokenizer->setState(new CommentLessThanSignState());
                 break;
 
@@ -26,7 +26,7 @@ class CommentState implements State
                 break;
 
             default:
-                $tokenizer->getCurrentToken()->appendCharacterToData($character);
+                $tokenizer->getToken()->appendCharacterToData($character);
                 break;
         }
     }

@@ -11,7 +11,7 @@ class CommentStateTest extends TestCase
     public function testAddCharacters()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentState = new CommentState();
 
@@ -21,7 +21,7 @@ class CommentStateTest extends TestCase
         $commentState->processCharacter('l', $tokenizer);
         $commentState->processCharacter('o', $tokenizer);
 
-        $data = $tokenizer->getCurrentToken()->getData();
+        $data = $tokenizer->getToken()->getData();
 
         $this->assertEquals('hello', $data);
     }
@@ -39,19 +39,19 @@ class CommentStateTest extends TestCase
     public function testOpeningOfNestedComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentState = new CommentState();
         $commentState->processCharacter('<', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\CommentLessThanSignState', $tokenizer->getState());
-        $this->assertEquals('<', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('<', $tokenizer->getToken()->getData());
     }
 
     public function testEndOfFile()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentState = new CommentState();
         $commentState->processCharacter(TestTokenizer::END_OF_FILE_CHARACTER, $tokenizer);

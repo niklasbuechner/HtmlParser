@@ -12,19 +12,19 @@ class CommentEndBangStateTest extends TestCase
     public function testDashInsteadOfCommentEnd()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndBangState = new CommentEndBangState();
         $commentEndBangState->processCharacter('-', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\CommentEndDashState', $tokenizer->getState());
-        $this->assertEquals('--!', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('--!', $tokenizer->getToken()->getData());
     }
 
     public function testCommentEnd()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndBangState = new CommentEndBangState();
         $commentEndBangState->processCharacter('>', $tokenizer);
@@ -39,7 +39,7 @@ class CommentEndBangStateTest extends TestCase
     public function testEndOfFile()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndBangState = new CommentEndBangState();
         $commentEndBangState->processCharacter(Tokenizer::END_OF_FILE_CHARACTER, $tokenizer);
@@ -54,12 +54,12 @@ class CommentEndBangStateTest extends TestCase
     public function testCommentContinuesWithData()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndBangState = new CommentEndBangState();
         $commentEndBangState->processCharacter(' ', $tokenizer);
 
-        $this->assertEquals('--! ', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('--! ', $tokenizer->getToken()->getData());
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\CommentState', $tokenizer->getState());
     }
 }

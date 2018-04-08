@@ -16,7 +16,7 @@ class MarkupDeclarationOpenStateTest extends TestCase
         $tokenizer->tokenize('--');
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\CommentStartState', $tokenizer->getState());
-        $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\CommentToken', $tokenizer->getCurrentToken());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\CommentToken', $tokenizer->getToken());
     }
 
     public function testCDATAException()

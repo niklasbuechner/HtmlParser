@@ -21,19 +21,19 @@ class CommentEndDashStateTest extends TestCase
     public function testStrayDashInComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndDashState = new CommentEndDashState();
         $commentEndDashState->processCharacter(' ', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\CommentState', $tokenizer->getState());
-        $this->assertEquals('- ', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('- ', $tokenizer->getToken()->getData());
     }
 
     public function testForEndOfFile()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndDashState = new CommentEndDashState();
         $commentEndDashState->processCharacter(TestTokenizer::END_OF_FILE_CHARACTER, $tokenizer);

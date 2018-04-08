@@ -2,7 +2,6 @@
 namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
-use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 
 class TagNameState implements State
 {
@@ -11,7 +10,7 @@ class TagNameState implements State
      */
     public function processCharacter($character, Tokenizer $tokenizer)
     {
-        $tagToken = $tokenizer->getCurrentToken();
+        $tagToken = $tokenizer->getToken();
 
         switch ($character) {
             case '/':
@@ -20,7 +19,7 @@ class TagNameState implements State
 
             case Tokenizer::END_OF_FILE_CHARACTER:
                 // eof-in-tag error
-                $tokenizer->emitToken(new EndOfFileToken());
+                $tokenizer->emitEofToken();
                 break;
 
             case '>':

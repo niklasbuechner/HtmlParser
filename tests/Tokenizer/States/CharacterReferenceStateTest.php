@@ -33,12 +33,12 @@ class CharacterReferenceStateTest extends TestCase
     public function testNamedCharacterReference()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
         $tokenizer->setReturnState(new AttributeValueDoubleQuotedState());
         $tokenizer->setState(new CharacterReferenceState($tokenizer));
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         // Careful, the state changes during the character processing.
         // It is set on the tokenizer.
@@ -54,12 +54,12 @@ class CharacterReferenceStateTest extends TestCase
     public function testDecimalNumericReference()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
         $tokenizer->setReturnState(new AttributeValueDoubleQuotedState());
         $tokenizer->setState(new CharacterReferenceState($tokenizer));
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         // Careful, the state changes during the character processing.
         // It is set on the tokenizer.
@@ -75,12 +75,12 @@ class CharacterReferenceStateTest extends TestCase
     public function testHexadecimalNumericReference()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
         $tokenizer->setReturnState(new AttributeValueDoubleQuotedState());
         $tokenizer->setState(new CharacterReferenceState($tokenizer));
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         // Careful, the state changes during the character processing.
         // It is set on the tokenizer.

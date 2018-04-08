@@ -17,7 +17,7 @@ class CommentEndState implements State
                 break;
 
             case '-':
-                $tokenizer->getCurrentToken()->appendCharacterToData('-');
+                $tokenizer->getToken()->appendCharacterToData('-');
                 break;
 
             case '!':
@@ -30,7 +30,7 @@ class CommentEndState implements State
                 break;
 
             default:
-                $tokenizer->getCurrentToken()->appendCharacterToData('--');
+                $tokenizer->getToken()->appendCharacterToData('--');
                 $tokenizer->setState(new CommentState());
                 $tokenizer->getState()->processCharacter($character, $tokenizer);
                 break;

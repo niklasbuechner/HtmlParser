@@ -11,7 +11,7 @@ class CommentStartStateTest extends TestCase
     public function testCommentDataString()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentStartState = new CommentStartState();
         $commentStartState->processCharacter('h', $tokenizer);
@@ -32,7 +32,7 @@ class CommentStartStateTest extends TestCase
     public function testIncorrectEmptyComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentStartState = new CommentStartState();
         $commentStartState->processCharacter('>', $tokenizer);

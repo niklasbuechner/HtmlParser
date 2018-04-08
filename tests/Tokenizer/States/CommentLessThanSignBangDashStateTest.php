@@ -21,7 +21,7 @@ class CommentLessThanSignBangDashStateTest extends TestCase
     public function testForStrayLessThanSignBangDashDash()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentLessThanSignBangDashState = new CommentLessThanSignBangDashState();
         $commentLessThanSignBangDashState->processCharacter(' ', $tokenizer);

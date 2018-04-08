@@ -12,7 +12,7 @@ class CommentEndBangState implements State
     {
         switch ($character) {
             case '-':
-                $tokenizer->getCurrentToken()->appendCharacterToData('--!');
+                $tokenizer->getToken()->appendCharacterToData('--!');
                 $tokenizer->setState(new CommentEndDashState());
                 break;
 
@@ -29,7 +29,7 @@ class CommentEndBangState implements State
                 break;
 
             default:
-                $tokenizer->getCurrentToken()->appendCharacterToData('--!');
+                $tokenizer->getToken()->appendCharacterToData('--!');
                 $tokenizer->setState(new CommentState());
                 $tokenizer->getState()->processCharacter($character, $tokenizer);
                 break;

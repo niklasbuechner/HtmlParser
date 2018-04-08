@@ -22,7 +22,7 @@ class CommentStartDashStateTest extends TestCase
     public function testEndOfFile()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentStartDashState = new CommentStartDashState();
         $commentStartDashState->processCharacter(Tokenizer::END_OF_FILE_CHARACTER, $tokenizer);
@@ -37,7 +37,7 @@ class CommentStartDashStateTest extends TestCase
     public function testAbruptClosing()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentStartDashState = new CommentStartDashState();
         $commentStartDashState->processCharacter('>', $tokenizer);
@@ -52,12 +52,12 @@ class CommentStartDashStateTest extends TestCase
     public function testDataAfterThridDash()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentStartDashState = new CommentStartDashState();
         $commentStartDashState->processCharacter(' ', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\CommentState', $tokenizer->getState());
-        $this->assertEquals('- ', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('- ', $tokenizer->getToken()->getData());
     }
 }

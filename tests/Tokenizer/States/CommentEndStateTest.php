@@ -11,7 +11,7 @@ class CommentEndStateTest extends TestCase
     public function testEndOfComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndState = new CommentEndState();
         $commentEndState->processCharacter('>', $tokenizer);
@@ -26,23 +26,23 @@ class CommentEndStateTest extends TestCase
     public function testThirdDash()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndState = new CommentEndState();
         $commentEndState->processCharacter('-', $tokenizer);
 
-        $this->assertEquals('-', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('-', $tokenizer->getToken()->getData());
     }
 
     public function testTwoStrayDashes()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndState = new CommentEndState();
         $commentEndState->processCharacter(' ', $tokenizer);
 
-        $this->assertEquals('-- ', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('-- ', $tokenizer->getToken()->getData());
     }
 
     public function testCommentEndingInBang()
@@ -58,7 +58,7 @@ class CommentEndStateTest extends TestCase
     public function testEndOfFile()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentEndState = new CommentEndState();
         $commentEndState->processCharacter(TestTokenizer::END_OF_FILE_CHARACTER, $tokenizer);

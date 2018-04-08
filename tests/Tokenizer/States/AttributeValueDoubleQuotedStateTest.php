@@ -12,10 +12,10 @@ class AttributeValueDoubleQuotedStateTest extends TestCase
     public function testAddCharactersToAttributeValue()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         $attributeValueDoubleQuotedState = new AttributeValueDoubleQuotedState();
 
@@ -37,12 +37,12 @@ class AttributeValueDoubleQuotedStateTest extends TestCase
     public function testNamedCharacterReferenceInAttributeValue()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $attributeValueDoubleQuotedState = new AttributeValueDoubleQuotedState();
 
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
         $tokenizer->setState($attributeValueDoubleQuotedState);
 
         // Careful, the state changes during the character processing.

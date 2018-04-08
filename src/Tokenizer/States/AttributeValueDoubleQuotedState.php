@@ -23,7 +23,7 @@ class AttributeValueDoubleQuotedState implements State
                 break;
 
             default:
-                $tag = $tokenizer->getCurrentToken();
+                $tag = $tokenizer->getToken();
                 $tag->getCurrentAttribute()->appendCharacterToAttributeValue($character);
                 break;
         }

@@ -12,7 +12,7 @@ class SelfClosingStartTagStateTest extends TestCase
     public function testEndOfTag()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new StartTagToken());
+        $tokenizer->setToken(new StartTagToken());
 
         $selfClosingStartTagState = new SelfClosingStartTagState();
         $selfClosingStartTagState->processCharacter('>', $tokenizer);

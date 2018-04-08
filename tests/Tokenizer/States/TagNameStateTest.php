@@ -16,13 +16,13 @@ class TagNameStateTest extends TestCase
         $tokenizer = new TestTokenizer();
         $tagNameState = new TagNameState();
 
-        $tokenizer->setCurrentToken(new StartTagToken());
+        $tokenizer->setToken(new StartTagToken());
         $tagNameState->processCharacter('d', $tokenizer);
         $tagNameState->processCharacter('i', $tokenizer);
         $tagNameState->processCharacter('v', $tokenizer);
         $tagNameState->processCharacter(' ', $tokenizer);
 
-        $currentToken = $tokenizer->getCurrentToken();
+        $currentToken = $tokenizer->getToken();
 
         $this->assertEquals('div', $currentToken->getName());
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\BeforeAttributeNameState', $tokenizer->getState());
@@ -33,11 +33,11 @@ class TagNameStateTest extends TestCase
         $tokenizer = new TestTokenizer();
         $tagNameState = new TagNameState();
 
-        $tokenizer->setCurrentToken(new StartTagToken());
+        $tokenizer->setToken(new StartTagToken());
         $tagNameState->processCharacter('p', $tokenizer);
         $tagNameState->processCharacter('>', $tokenizer);
 
-        $currentToken = $tokenizer->getCurrentToken();
+        $currentToken = $tokenizer->getToken();
         $tokenListener = $tokenizer->getTokenListener();
         $emittedTokens = $tokenListener->getEmittedTokens();
 
@@ -65,7 +65,7 @@ class TagNameStateTest extends TestCase
         $tokenizer = new TestTokenizer();
         $tagNameState = new TagNameState();
 
-        $tokenizer->setCurrentToken(new StartTagToken());
+        $tokenizer->setToken(new StartTagToken());
         $tagNameState->processCharacter('/', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\SelfClosingStartTagState', $tokenizer->getState());

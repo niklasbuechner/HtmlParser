@@ -12,7 +12,7 @@ class BogusCommentStateTest extends TestCase
     public function testCommentData()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $bogusCommentState = new BogusCommentState();
         $bogusCommentState->processCharacter('h', $tokenizer);
@@ -21,13 +21,13 @@ class BogusCommentStateTest extends TestCase
         $bogusCommentState->processCharacter('l', $tokenizer);
         $bogusCommentState->processCharacter('o', $tokenizer);
 
-        $this->assertEquals('hello', $tokenizer->getCurrentToken()->getData());
+        $this->assertEquals('hello', $tokenizer->getToken()->getData());
     }
 
     public function testEndOfBogusComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $bogusCommentState = new BogusCommentState();
         $bogusCommentState->processCharacter('>', $tokenizer);
@@ -42,7 +42,7 @@ class BogusCommentStateTest extends TestCase
     public function testEndOfFile()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $bogusCommentState = new BogusCommentState();
         $bogusCommentState->processCharacter(Tokenizer::END_OF_FILE_CHARACTER, $tokenizer);

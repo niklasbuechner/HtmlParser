@@ -2,7 +2,6 @@
 namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
-use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 
 class SelfClosingStartTagState implements State
 {
@@ -13,14 +12,14 @@ class SelfClosingStartTagState implements State
     {
         switch ($character) {
             case '>':
-                $tokenizer->getCurrentToken()->setAsSelfClosing();
+                $tokenizer->getToken()->setAsSelfClosing();
                 $tokenizer->emitCurrentToken();
                 $tokenizer->setState(new DataState());
                 break;
 
             case Tokenizer::END_OF_FILE_CHARACTER:
                 // eof-in-tag error
-                $tokenizer->emitToken(new EndOfFileToken());
+                $tokenizer->emitEofToken();
                 break;
 
             default:

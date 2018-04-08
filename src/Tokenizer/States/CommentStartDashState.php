@@ -28,7 +28,7 @@ class CommentStartDashState implements State
                 break;
 
             default:
-                $tokenizer->getCurrentToken()->appendCharacterToData('-');
+                $tokenizer->getToken()->appendCharacterToData('-');
                 $tokenizer->setState(new CommentState());
                 $tokenizer->getState()->processCharacter($character, $tokenizer);
                 break;

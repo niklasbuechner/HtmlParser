@@ -18,7 +18,7 @@ class EndTagOpenState implements State
 
             default:
                 if (preg_match('/[a-zA-Z]/', $character)) {
-                    $tokenizer->setCurrentToken(new EndTagToken());
+                    $tokenizer->setToken(new EndTagToken());
                     $tokenizer->setState(new TagNameState());
                     $tokenizer->getState()->processCharacter($character, $tokenizer);
                 }

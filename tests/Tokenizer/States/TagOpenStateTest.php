@@ -17,7 +17,7 @@ class TagOpenStateTest extends TestCase
 
         $tagOpenState->processCharacter('a', $tokenizer);
 
-        $currentToken = $tokenizer->getCurrentToken();
+        $currentToken = $tokenizer->getToken();
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\TagNameState', $tokenizer->getState());
         $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\StartTagToken', $currentToken);
         $this->assertEquals('a', $currentToken->getName());
@@ -78,6 +78,6 @@ class TagOpenStateTest extends TestCase
         $tagOpenState->processCharacter('?', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\BogusCommentState', $tokenizer->getState());
-        $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\CommentToken', $tokenizer->getCurrentToken());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\CommentToken', $tokenizer->getToken());
     }
 }

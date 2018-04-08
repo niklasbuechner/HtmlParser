@@ -4,7 +4,6 @@ namespace HtmlParser\Tokenizer\States;
 use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
-use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 
 class TagOpenState implements State
@@ -25,21 +24,21 @@ class TagOpenState implements State
 
             case '?':
                 // unexpected-question-mark-instead-of-tag-name error
-                $tokenizer->setCurrentToken(new CommentToken());
+                $tokenizer->setToken(new CommentToken());
                 $tokenizer->setState(new BogusCommentState());
                 break;
 
             case Tokenizer::END_OF_FILE_CHARACTER:
                 // eof-before-tag-name error
                 $tokenizer->emitToken(new CharacterToken('<'));
-                $tokenizer->emitToken(new EndOfFileToken());
+                $tokenizer->emitEofToken();
                 break;
 
             default:
                 if (preg_match('/[a-zA-Z]/', $character)) {
                     $tagNameState = new TagNameState();
                     $tokenizer->setState($tagNameState);
-                    $tokenizer->setCurrentToken(new StartTagToken());
+                    $tokenizer->setToken(new StartTagToken());
 
                     $tagNameState->processCharacter($character, $tokenizer);
                 } else {

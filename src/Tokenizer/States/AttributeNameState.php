@@ -31,7 +31,7 @@ class AttributeNameState implements State
                     $tokenizer->setState(new AfterAttributeNameState());
                     $tokenizer->getState()->processCharacter($character, $tokenizer);
                 } else {
-                    $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
+                    $attribute = $tokenizer->getToken()->getCurrentAttribute();
                     $attribute->appendCharacterToAttributeName($character);
                 }
                 break;

@@ -13,10 +13,10 @@ class AttributeNameStateTest extends TestCase
     public function testAsciiAttributeName()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         $attributeNameState = new AttributeNameState();
 
@@ -25,17 +25,17 @@ class AttributeNameStateTest extends TestCase
         $attributeNameState->processCharacter('e', $tokenizer);
         $attributeNameState->processCharacter('f', $tokenizer);
 
-        $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
+        $attribute = $tokenizer->getToken()->getCurrentAttribute();
         $this->assertEquals('href', $attribute->getName());
     }
 
     public function testAttributeNameEndingInEqualsSign()
     {
         $tagToken = new StartTagToken();
-        $tagToken->setCurrentAttribute(new AttributeStruct());
+        $tagToken->addAttribute(new AttributeStruct());
 
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken($tagToken);
+        $tokenizer->setToken($tagToken);
 
         $attributeNameState = new AttributeNameState();
 
@@ -44,7 +44,7 @@ class AttributeNameStateTest extends TestCase
         $attributeNameState->processCharacter('c', $tokenizer);
         $attributeNameState->processCharacter('=', $tokenizer);
 
-        $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
+        $attribute = $tokenizer->getToken()->getCurrentAttribute();
         $this->assertEquals('src', $attribute->getName());
         $this->assertInstanceOf(BeforeAttributeValueState::class, $tokenizer->getState());
     }

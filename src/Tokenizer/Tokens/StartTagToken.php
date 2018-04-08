@@ -49,7 +49,7 @@ class StartTagToken implements Token
     /**
      * @param AttributeStruct
      */
-    public function setCurrentAttribute(AttributeStruct $attribute)
+    public function addAttribute(AttributeStruct $attribute)
     {
         $this->saveCurrentAttribute();
         $this->currentAttribute = $attribute;

@@ -11,7 +11,7 @@ class CommentLessThanSignBangStateTest extends TestCase
     public function testOpeningOfNestedComment()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentLessThanSignBangState = new CommentLessThanSignBangState();
         $commentLessThanSignBangState->processCharacter('-', $tokenizer);
@@ -22,7 +22,7 @@ class CommentLessThanSignBangStateTest extends TestCase
     public function testStrayLessThanSignBang()
     {
         $tokenizer = new TestTokenizer();
-        $tokenizer->setCurrentToken(new CommentToken());
+        $tokenizer->setToken(new CommentToken());
 
         $commentLessThanSignBangState = new CommentLessThanSignBangState();
         $commentLessThanSignBangState->processCharacter(' ', $tokenizer);

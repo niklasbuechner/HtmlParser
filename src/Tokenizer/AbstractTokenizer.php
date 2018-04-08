@@ -145,7 +145,7 @@ abstract class AbstractTokenizer implements Tokenizer
     /**
      * @inheritdoc
      */
-    public function setCurrentToken(Token $currentToken)
+    public function setToken(Token $currentToken)
     {
         $this->currentToken = $currentToken;
     }
@@ -153,7 +153,7 @@ abstract class AbstractTokenizer implements Tokenizer
     /**
      * @return Token
      */
-    public function getCurrentToken()
+    public function getToken()
     {
         return $this->currentToken;
     }

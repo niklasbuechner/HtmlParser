@@ -21,14 +21,14 @@ class BeforeAttributeNameState implements State
 
             case '=':
                 // unexpected-equals-sign-before-attribute-name
-                $tokenizer->getCurrentToken()->setCurrentAttribute(new AttributeStruct());
+                $tokenizer->getToken()->addAttribute(new AttributeStruct());
                 $tokenizer->setState(new AttributeNameState());
                 break;
 
             default:
                 if (!preg_match('/\s/', $character)) {
                     $tokenizer->setState(new AttributeNameState());
-                    $tokenizer->getCurrentToken()->setCurrentAttribute(new AttributeStruct());
+                    $tokenizer->getToken()->addAttribute(new AttributeStruct());
                     $tokenizer->getState()->processCharacter($character, $tokenizer);
                 }
                 break;

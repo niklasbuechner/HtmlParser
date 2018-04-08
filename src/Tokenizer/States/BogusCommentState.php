@@ -2,7 +2,6 @@
 namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
-use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 
 class BogusCommentState implements State
 {
@@ -19,11 +18,11 @@ class BogusCommentState implements State
 
             case Tokenizer::END_OF_FILE_CHARACTER:
                 $tokenizer->emitCurrentToken();
-                $tokenizer->emitToken(new EndOfFileToken());
+                $tokenizer->emitEofToken();
                 break;
 
             default:
-                $tokenizer->getCurrentToken()->appendCharacterToData($character);
+                $tokenizer->getToken()->appendCharacterToData($character);
                 break;
         }
     }
