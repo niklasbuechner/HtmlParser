@@ -16,8 +16,9 @@ class MarkupDeclarationOpenState implements State
             $tokenizer->consumeNextCharacters(1);
             $tokenizer->setState(new CommentStartState());
             $tokenizer->setToken(new CommentToken());
-        } elseif ($character === '[' && $character . $tokenizer->getNextCharacters(6) === '[CDATA[') {
-            throw new Exception('CDATA elements are deprecated with HTML5 and therefore unsupported here.');
+        } elseif (mb_strtolower($character . $tokenizer->getNextCharacters(6)) === 'doctype') {
+            $tokenizer->consumeNextCharacters(6);
+            $tokenizer->setState(new DoctypeState());
         }
     }
 }

@@ -1,7 +1,6 @@
 <?php
 namespace HtmlParser\Tests\Tokenizer\States;
 
-use \Exception;
 use HtmlParser\Tests\TestResources\TestTokenizer;
 use HtmlParser\Tokenizer\States\MarkupDeclarationOpenState;
 use PHPUnit\Framework\TestCase;
@@ -19,17 +18,13 @@ class MarkupDeclarationOpenStateTest extends TestCase
         $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\CommentToken', $tokenizer->getToken());
     }
 
-    public function testCDATAException()
+    public function testDoctypeStart()
     {
-        try {
-            $tokenizer = new TestTokenizer();
+        $tokenizer = new TestTokenizer();
 
-            $tokenizer->setState(new MarkupDeclarationOpenState());
-            $tokenizer->tokenize('[CDATA[');
+        $tokenizer->setState(new MarkupDeclarationOpenState());
+        $tokenizer->tokenize('DOCtype');
 
-            $this->assertEquals(false, true);
-        } catch (Exception $exception) {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypeState', $tokenizer->getState());
     }
 }
