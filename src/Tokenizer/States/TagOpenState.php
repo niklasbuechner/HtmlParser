@@ -2,6 +2,9 @@
 namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
+use HtmlParser\Tokenizer\Tokens\CharacterToken;
+use HtmlParser\Tokenizer\Tokens\CommentToken;
+use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 
 class TagOpenState implements State
@@ -20,8 +23,17 @@ class TagOpenState implements State
                 $tokenizer->setState(new MarkupDeclarationOpenState());
                 break;
 
-            // case '?': TODO
-            // case 'EOL':
+            case '?':
+                // unexpected-question-mark-instead-of-tag-name error
+                $tokenizer->setCurrentToken(new CommentToken());
+                $tokenizer->setState(new BogusCommentState());
+                break;
+
+            case Tokenizer::END_OF_FILE_CHARACTER:
+                // eof-before-tag-name error
+                $tokenizer->emitToken(new CharacterToken('<'));
+                $tokenizer->emitToken(new EndOfFileToken());
+                break;
 
             default:
                 if (preg_match('/[a-zA-Z]/', $character)) {
@@ -30,9 +42,11 @@ class TagOpenState implements State
                     $tokenizer->setCurrentToken(new StartTagToken());
 
                     $tagNameState->processCharacter($character, $tokenizer);
+                } else {
+                    $tokenizer->emitToken(new CharacterToken('<'));
+                    $tokenizer->setState(new DataState());
                 }
                 break;
-            // TODO invalid first character error
         }
     }
 }

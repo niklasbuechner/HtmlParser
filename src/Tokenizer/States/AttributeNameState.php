@@ -11,15 +11,29 @@ class AttributeNameState implements State
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
-            // case '/':
-            // case '>':
+            case '/':
+            case '>':
+                $tokenizer->setState(new AfterAttributeNameState());
+                $tokenizer->getState()->processCharacter($character, $tokenizer);
+                break;
+
             case '=':
                 $tokenizer->setState(new BeforeAttributeValueState());
                 break;
 
+            case '\'':
+            case '"':
+            case '<':
+                // unexpected-character-in-attribute-name error
+                // fall through
             default:
-                $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
-                $attribute->appendCharacterToAttributeName($character);
+                if (preg_match('/\s/', $character)) {
+                    $tokenizer->setState(new AfterAttributeNameState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
+                } else {
+                    $attribute = $tokenizer->getCurrentToken()->getCurrentAttribute();
+                    $attribute->appendCharacterToAttributeName($character);
+                }
                 break;
         }
     }

@@ -48,4 +48,34 @@ class AttributeNameStateTest extends TestCase
         $this->assertEquals('src', $attribute->getName());
         $this->assertInstanceOf(BeforeAttributeValueState::class, $tokenizer->getState());
     }
+
+    public function testWhiteSpaceAfterAttributeName()
+    {
+        $tokenizer = new TestTokenizer();
+        $attributeNameState = new AttributeNameState();
+
+        $attributeNameState->processCharacter(' ', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+    }
+
+    public function testStraySolidus()
+    {
+        $tokenizer = new TestTokenizer();
+        $attributeNameState = new AttributeNameState();
+
+        $attributeNameState->processCharacter('/', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+    }
+
+    public function testTagEnd()
+    {
+        $tokenizer = new TestTokenizer();
+        $attributeNameState = new AttributeNameState();
+
+        $attributeNameState->processCharacter('>', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterAttributeNameState', $tokenizer->getState());
+    }
 }

@@ -12,19 +12,24 @@ class BeforeAttributeNameState implements State
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
-            // case '/':
-            // case '>':
-            // case '=':
-            //     # code...
-            //     break;
+            case '>':
+            case '/':
+            case Tokenizer::END_OF_FILE_CHARACTER:
+                $tokenizer->setState(new AfterAttributeNameState());
+                $tokenizer->getState()->processCharacter($character, $tokenizer);
+                break;
+
+            case '=':
+                // unexpected-equals-sign-before-attribute-name
+                $tokenizer->getCurrentToken()->setCurrentAttribute(new AttributeStruct());
+                $tokenizer->setState(new AttributeNameState());
+                break;
 
             default:
                 if (!preg_match('/\s/', $character)) {
-                    $attributeNameState = new AttributeNameState();
-                    $tokenizer->setState($attributeNameState);
-                    $tokenizer->getCurrentToken()->setCurrentAttribute(new AttributeStruct);
-
-                    $attributeNameState->processCharacter($character, $tokenizer);
+                    $tokenizer->setState(new AttributeNameState());
+                    $tokenizer->getCurrentToken()->setCurrentAttribute(new AttributeStruct());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
                 }
                 break;
         }

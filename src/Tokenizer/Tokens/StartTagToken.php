@@ -20,6 +20,11 @@ class StartTagToken implements Token
      */
     private $currentAttribute;
 
+    /**
+     * @var boolean
+     */
+    private $selfClosing = false;
+
     public function __construct()
     {
         $this->name = '';
@@ -72,6 +77,22 @@ class StartTagToken implements Token
     public function prepareEmit()
     {
         $this->saveCurrentAttribute();
+    }
+
+    /**
+     * Defines that the tag does not need an end tag.
+     */
+    public function setAsSelfClosing()
+    {
+        $this->selfClosing = true;
+    }
+
+    /**
+     * Checks if the tag need an end tag.
+     */
+    public function isSelfClosing()
+    {
+        return $this->selfClosing;
     }
 
     /**
