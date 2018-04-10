@@ -3,7 +3,7 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 
-class DoctypeNameState implements State
+class DoctypeNameState extends AbstractDoctypeState
 {
     /**
      * @inheritdoc
@@ -17,9 +17,7 @@ class DoctypeNameState implements State
                 break;
 
             case Tokenizer::END_OF_FILE_CHARACTER:
-                $tokenizer->getToken()->turnOnForceQuirksFlag();
-                $tokenizer->emitCurrentToken();
-                $tokenizer->emitEofToken();
+                $this->unexpectedEndOfFileInDoctype($tokenizer);
                 break;
 
             default:

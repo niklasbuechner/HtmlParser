@@ -3,7 +3,7 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 
-class AfterDoctypeNameState extends AbstractDoctypeState
+class AfterDoctypePublicKeywordState extends AbstractDoctypeState
 {
     /**
      * @inheritdoc
@@ -11,9 +11,11 @@ class AfterDoctypeNameState extends AbstractDoctypeState
     public function processCharacter($character, Tokenizer $tokenizer)
     {
         switch ($character) {
+            // case '\'': TODO
+            // case '"':
+
             case '>':
-                $tokenizer->setState(new DataState());
-                $tokenizer->emitCurrentToken();
+                $this->unexpectedClosedDoctypeTag($tokenizer);
                 break;
 
             case Tokenizer::END_OF_FILE_CHARACTER:
@@ -21,11 +23,9 @@ class AfterDoctypeNameState extends AbstractDoctypeState
                 break;
 
             default:
-                if (mb_strtolower($character . $tokenizer->getNextCharacters(5)) === 'public') {
-                    $tokenizer->consumeNextCharacters(5);
-                    $tokenizer->setState(new AfterDoctypePublicKeywordState());
+                if (preg_match('/\s/', $character)) {
+                    $tokenizer->setState(new BeforeDoctypePublicIdentifierState());
                 }
-                // TODO After doctype system
                 break;
         }
     }

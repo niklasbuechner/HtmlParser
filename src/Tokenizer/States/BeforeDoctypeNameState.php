@@ -4,7 +4,7 @@ namespace HtmlParser\Tokenizer\States;
 use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
 
-class BeforeDoctypeNameState implements State
+class BeforeDoctypeNameState extends AbstractDoctypeState
 {
     /**
      * @inheritdoc
@@ -14,16 +14,12 @@ class BeforeDoctypeNameState implements State
         switch ($character) {
             case '>':
                 $tokenizer->setToken(new DoctypeToken());
-                $tokenizer->getToken()->turnOnForceQuirksFlag();
-                $tokenizer->setState(new DataState());
-                $tokenizer->emitCurrentToken();
+                $this->unexpectedClosedDoctypeTag($tokenizer);
                 break;
 
             case Tokenizer::END_OF_FILE_CHARACTER:
                 $tokenizer->setToken(new DoctypeToken());
-                $tokenizer->getToken()->turnOnForceQuirksFlag();
-                $tokenizer->emitCurrentToken();
-                $tokenizer->emitEofToken();
+                $this->unexpectedEndOfFileInDoctype($tokenizer);
                 break;
 
             default:
