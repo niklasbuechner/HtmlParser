@@ -14,6 +14,11 @@ class DoctypeToken implements Token
     private $name;
 
     /**
+     * @var string
+     */
+    private $publicIdentifier;
+
+    /**
      * @inheritdoc
      */
     public function prepareEmit()
@@ -56,5 +61,33 @@ class DoctypeToken implements Token
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Sets the public identifier to an empty string.
+     */
+    public function initPublicIdentifier()
+    {
+        $this->publicIdentifier = '';
+    }
+
+    /**
+     * Returns the public identifier.
+     *
+     * @return string
+     */
+    public function getPublicIdentifier()
+    {
+        return $this->publicIdentifier;
+    }
+
+    /**
+     * Add a character to the public identifier.
+     *
+     * @param string $character
+     */
+    public function appendCharacterToPublicIdentifier($character)
+    {
+        $this->publicIdentifier .= $character;
     }
 }

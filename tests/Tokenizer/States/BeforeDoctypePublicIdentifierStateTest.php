@@ -40,4 +40,26 @@ class BeforeDoctypePublicIdentifierStateTest extends TestCase
         $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\DoctypeToken', $tokens[0]);
         $this->assertTrue($tokens[0]->isInQuirksMode());
     }
+
+    public function testDoubleQuotedIdentifier()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setToken(new DoctypeToken());
+
+        $beforeDoctypePublicIdentifierState = new BeforeDoctypePublicIdentifierState();
+        $beforeDoctypePublicIdentifierState->processCharacter('"', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypePublicIdentifierDoubleQuotedState', $tokenizer->getState());
+    }
+
+    public function testSingleQuotedIdentifier()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setToken(new DoctypeToken());
+
+        $beforeDoctypePublicIdentifierState = new BeforeDoctypePublicIdentifierState();
+        $beforeDoctypePublicIdentifierState->processCharacter('\'', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypePublicIdentifierSingleQuotedState', $tokenizer->getState());
+    }
 }

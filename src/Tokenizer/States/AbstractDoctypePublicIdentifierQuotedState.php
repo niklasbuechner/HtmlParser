@@ -3,8 +3,15 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 
-class BeforeDoctypePublicIdentifierState extends AbstractDoctypeState
+abstract class AbstractDoctypePublicIdentifierQuotedState extends AbstractDoctypeState
 {
+    /**
+     * Returns the character ending the public identifier.
+     *
+     * @return string
+     */
+    abstract public function getPublicIdentifierDelimiter();
+
     /**
      * @inheritdoc
      */
@@ -12,13 +19,7 @@ class BeforeDoctypePublicIdentifierState extends AbstractDoctypeState
     {
         switch ($character) {
             case '"':
-                $tokenizer->getToken()->initPublicIdentifier();
-                $tokenizer->setState(new DoctypePublicIdentifierDoubleQuotedState());
-                break;
-
-            case '\'':
-                $tokenizer->getToken()->initPublicIdentifier();
-                $tokenizer->setState(new DoctypePublicIdentifierSingleQuotedState());
+                $tokenizer->setState(new AfterDoctypePublicIdentifierState());
                 break;
 
             case '>':
@@ -30,7 +31,7 @@ class BeforeDoctypePublicIdentifierState extends AbstractDoctypeState
                 break;
 
             default:
-                # code...
+                $tokenizer->getToken()->appendCharacterToPublicIdentifier($character);
                 break;
         }
     }
