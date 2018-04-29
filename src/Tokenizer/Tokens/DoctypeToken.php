@@ -19,6 +19,11 @@ class DoctypeToken implements Token
     private $publicIdentifier;
 
     /**
+     * @var string
+     */
+    private $systemIdentifier;
+
+    /**
      * @inheritdoc
      */
     public function prepareEmit()
@@ -89,5 +94,15 @@ class DoctypeToken implements Token
     public function appendCharacterToPublicIdentifier($character)
     {
         $this->publicIdentifier .= $character;
+    }
+
+    /**
+     * Return the system identifier.
+     *
+     * @return string
+     */
+    public function getSystemIdentifier()
+    {
+        return $this->systemIdentifier;
     }
 }
