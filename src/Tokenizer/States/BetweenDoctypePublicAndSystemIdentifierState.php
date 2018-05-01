@@ -30,7 +30,11 @@ class BetweenDoctypePublicAndSystemIdentifierState extends AbstractDoctypeState
                 break;
 
             default:
-                // TODO
+                if (!preg_match('/\s/', $character)) {
+                    $tokenizer->getToken()->turnOnQuirksMode();
+                    $tokenizer->setState(new BogusDoctypeState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
+                }
                 break;
         }
     }

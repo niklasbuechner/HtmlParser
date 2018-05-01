@@ -50,4 +50,36 @@ class AfterDoctypePublicKeywordStateTest extends TestCase
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\BeforeDoctypePublicIdentifierState', $tokenizer->getState(0));
     }
+
+    public function testMissingWhiteSpaceDoubleQuoted()
+    {
+        $tokenizer = new TestTokenizer();
+        $afterDoctypeNameState = new AfterDoctypePublicKeywordState();
+
+        $afterDoctypeNameState->processCharacter('"', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypePublicIdentifierDoubleQuotedState', $tokenizer->getState(0));
+    }
+
+    public function testMissingWhiteSpaceSingleQuoted()
+    {
+        $tokenizer = new TestTokenizer();
+        $afterDoctypeNameState = new AfterDoctypePublicKeywordState();
+
+        $afterDoctypeNameState->processCharacter('\'', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypePublicIdentifierSingleQuotedState', $tokenizer->getState(0));
+    }
+
+    public function testInvalidCharacters()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setToken(new DoctypeToken());
+
+        $afterDoctypeNameState = new AfterDoctypePublicKeywordState();
+        $afterDoctypeNameState->processCharacter('a', $tokenizer);
+
+        $this->assertTrue($tokenizer->getToken()->isInQuirksMode());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\BogusDoctypeState', $tokenizer->getState(0));
+    }
 }

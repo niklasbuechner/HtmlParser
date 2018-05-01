@@ -62,4 +62,28 @@ class BeforeDoctypePublicIdentifierStateTest extends TestCase
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypePublicIdentifierSingleQuotedState', $tokenizer->getState());
     }
+
+    public function testIgnoredWhiteSpace()
+    {
+        $tokenizer = new TestTokenizer();
+        $beforeDoctypePublicIdentifierState = new BeforeDoctypePublicIdentifierState();
+
+        $beforeDoctypePublicIdentifierState->processCharacter(' ', $tokenizer);
+
+        $this->assertNull($tokenizer->getState());
+        $this->assertNull($tokenizer->getToken());
+        $this->assertCount(0, $tokenizer->getTokenListener()->getEmittedTokens());
+    }
+
+    public function testInvalidCharacter()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setToken(new DoctypeToken());
+
+        $beforeDoctypePublicIdentifierState = new BeforeDoctypePublicIdentifierState();
+        $beforeDoctypePublicIdentifierState->processCharacter('a', $tokenizer);
+
+        $this->assertTrue($tokenizer->getToken()->isInQuirksMode());
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\BogusDoctypeState', $tokenizer->getState());
+    }
 }

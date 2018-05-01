@@ -49,4 +49,26 @@ class AfterDoctypeNameStateTest extends TestCase
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterDoctypePublicKeywordState', $tokenizer->getState());
     }
+
+    public function testSystemKeyword()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setState(new AfterDoctypeNameState());
+
+        $tokenizer->tokenize('system');
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\AfterDoctypeSystemKeywordState', $tokenizer->getState());
+    }
+
+    public function testInvalidCharacterSequence()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setToken(new DoctypeToken());
+        $tokenizer->setState(new AfterDoctypeNameState());
+
+        $tokenizer->tokenize('hello');
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\BogusDoctypeState', $tokenizer->getState());
+        $this->assertTrue($tokenizer->getToken()->isInQuirksMode());
+    }
 }

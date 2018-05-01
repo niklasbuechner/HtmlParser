@@ -17,7 +17,7 @@ abstract class AbstractDoctypeState implements State
      */
     protected function unexpectedEndOfFileInDoctype(Tokenizer $tokenizer)
     {
-        $tokenizer->getToken()->turnOnForceQuirksFlag();
+        $tokenizer->getToken()->turnOnQuirksMode();
         $tokenizer->emitCurrentToken();
         $tokenizer->emitEofToken();
     }
@@ -29,7 +29,7 @@ abstract class AbstractDoctypeState implements State
      */
     protected function unexpectedClosedDoctypeTag(Tokenizer $tokenizer)
     {
-        $tokenizer->getToken()->turnOnForceQuirksFlag();
+        $tokenizer->getToken()->turnOnQuirksMode();
         $tokenizer->setState(new DataState());
         $tokenizer->emitCurrentToken();
     }

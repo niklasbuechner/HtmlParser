@@ -30,7 +30,11 @@ class BeforeDoctypePublicIdentifierState extends AbstractDoctypeState
                 break;
 
             default:
-                # code...
+                if (!preg_match('/\s/', $character)) {
+                    $tokenizer->getToken()->turnOnQuirksMode();
+                    $tokenizer->setState(new BogusDoctypeState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
+                }
                 break;
         }
     }

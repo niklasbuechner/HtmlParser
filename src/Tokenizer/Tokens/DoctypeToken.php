@@ -33,7 +33,7 @@ class DoctypeToken implements Token
     /**
      * Set force quirks flag to on.
      */
-    public function turnOnForceQuirksFlag()
+    public function turnOnQuirksMode()
     {
         $this->forceQuirks = true;
     }
@@ -104,5 +104,15 @@ class DoctypeToken implements Token
     public function getSystemIdentifier()
     {
         return $this->systemIdentifier;
+    }
+
+    /**
+     * Adds a character to the system identifier.
+     *
+     * @param string $character
+     */
+    public function appendCharacterToSystemIdentifier($character)
+    {
+        $this->systemIdentifier .= $character;
     }
 }

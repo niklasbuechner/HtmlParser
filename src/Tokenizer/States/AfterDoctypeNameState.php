@@ -24,8 +24,14 @@ class AfterDoctypeNameState extends AbstractDoctypeState
                 if (mb_strtolower($character . $tokenizer->getNextCharacters(5)) === 'public') {
                     $tokenizer->consumeNextCharacters(5);
                     $tokenizer->setState(new AfterDoctypePublicKeywordState());
+                } elseif (mb_strtolower($character . $tokenizer->getNextCharacters(5)) === 'system') {
+                    $tokenizer->consumeNextCharacters(5);
+                    $tokenizer->setState(new AfterDoctypeSystemKeywordState());
+                } else {
+                    $tokenizer->getToken()->turnOnQuirksMode();
+                    $tokenizer->setState(new BogusDoctypeState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
                 }
-                // TODO After doctype system
                 break;
         }
     }

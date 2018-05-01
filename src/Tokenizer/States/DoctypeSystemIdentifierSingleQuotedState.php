@@ -3,19 +3,13 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 
-class DoctypeSystemIdentifierSingleQuotedState implements State
+class DoctypeSystemIdentifierSingleQuotedState extends AbstractDoctypeSystemIdentifierQuotedState
 {
     /**
      * @inheritdoc
      */
-    public function processCharacter($character, Tokenizer $tokenizer)
+    public function getSystemIdentifierDelimiter()
     {
-        switch ($character) {
-            case '':
-                break;
-
-            default:
-                break;
-        }
+        return '\'';
     }
 }

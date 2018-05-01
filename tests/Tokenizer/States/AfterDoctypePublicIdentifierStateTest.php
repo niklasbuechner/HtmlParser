@@ -39,4 +39,47 @@ class AfterDoctypePublicIdentifierStateTest extends TestCase
         $this->assertCount(1, $tokens);
         $this->assertInstanceOf('HtmlParser\Tokenizer\Tokens\DoctypeToken', $tokens[0]);
     }
+
+    public function testDoubleQuotedSystemIdentifier()
+    {
+        $tokenizer = new TestTokenizer();
+        $afterDoctypePublicIdentifierState = new AfterDoctypePublicIdentifierState();
+
+        $afterDoctypePublicIdentifierState->processCharacter('"', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypeSystemIdentifierDoubleQuotedState', $tokenizer->getState());
+    }
+
+    public function testSingleQuotedSystemIdentifier()
+    {
+        $tokenizer = new TestTokenizer();
+        $afterDoctypePublicIdentifierState = new AfterDoctypePublicIdentifierState();
+
+        $afterDoctypePublicIdentifierState->processCharacter('\'', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypeSystemIdentifierSingleQuotedState', $tokenizer->getState());
+    }
+
+    public function testInvalidCharacters()
+    {
+        $tokenizer = new TestTokenizer();
+        $tokenizer->setToken(new DoctypeToken());
+
+        $afterDoctypePublicIdentifierState = new AfterDoctypePublicIdentifierState();
+        $afterDoctypePublicIdentifierState->processCharacter('a', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\BogusDoctypeState', $tokenizer->getState());
+    }
+
+    public function testIgnoredWhiteSpaces()
+    {
+        $tokenizer = new TestTokenizer();
+        $afterDoctypePublicIdentifierState = new AfterDoctypePublicIdentifierState();
+
+        $afterDoctypePublicIdentifierState->processCharacter(' ', $tokenizer);
+
+        $this->assertNull($tokenizer->getState());
+        $this->assertNull($tokenizer->getToken());
+        $this->assertCount(0, $tokenizer->getTokenListener()->getEmittedTokens());
+    }
 }
