@@ -17,7 +17,7 @@ abstract class AbstractTokenizer implements Tokenizer
     /**
      * @var string[]
      */
-    protected $characterArray;
+    protected $characters;
 
     /**
      * @var int
@@ -54,11 +54,11 @@ abstract class AbstractTokenizer implements Tokenizer
      */
     public function tokenize($htmlString)
     {
-        $this->characterArray = preg_split('//u', $htmlString, -1, PREG_SPLIT_NO_EMPTY);
-        $stringLength = count($this->characterArray);
+        $this->characters = $htmlString;
+        $stringLength = mb_strlen($this->characters, '8bit');
 
         for ($this->characterIndex = 0; $this->characterIndex < $stringLength; $this->characterIndex += 1) {
-            $currentCharacter = $this->characterArray[$this->characterIndex];
+            $currentCharacter = $this->characters[$this->characterIndex];
             $this->state->processCharacter($currentCharacter, $this);
         }
     }
@@ -73,9 +73,9 @@ abstract class AbstractTokenizer implements Tokenizer
         //TODO throw error if more characters are wanted than are left.
 
         for ($counter = $this->characterIndex + 1;
-            $counter <= $this->characterIndex + $amount && $counter <count($this->characterArray);
+            $counter <= $this->characterIndex + $amount && $counter < mb_strlen($this->characters, '8bit');
             $counter += 1) {
-            $result .= $this->characterArray[$counter];
+            $result .= $this->characters[$counter];
         }
 
         return $result;
