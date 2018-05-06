@@ -27,4 +27,14 @@ class MarkupDeclarationOpenStateTest extends TestCase
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\DoctypeState', $tokenizer->getState());
     }
+
+    public function testCdataStart()
+    {
+        $tokenizer = new TestTokenizer();
+
+        $tokenizer->setState(new MarkupDeclarationOpenState());
+        $tokenizer->tokenize('[CDATA[');
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\CdataSectionState', $tokenizer->getState());
+    }
 }

@@ -19,6 +19,10 @@ class MarkupDeclarationOpenState implements State
         } elseif (mb_strtolower($character . $tokenizer->getNextCharacters(6)) === 'doctype') {
             $tokenizer->consumeNextCharacters(6);
             $tokenizer->setState(new DoctypeState());
+        } elseif ($character . $tokenizer->getNextCharacters(6) === '[CDATA[') {
+            // TODO check for adjusted current node
+            $tokenizer->consumeNextCharacters(6);
+            $tokenizer->setState(new CdataSectionState());
         }
     }
 }
