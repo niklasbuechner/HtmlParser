@@ -52,6 +52,11 @@ interface Tokenizer
     public function getTemporaryBuffer();
 
     /**
+     * Clears the temporary buffer.
+     */
+    public function clearTemporaryBuffer();
+
+    /**
      * Temporary variable to calculate the correct unicode character of the
      * NumericCharacterReferenceState.
      *

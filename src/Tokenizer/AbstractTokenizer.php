@@ -198,4 +198,12 @@ abstract class AbstractTokenizer implements Tokenizer
     {
         return $this->temporaryBuffer;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function clearTemporaryBuffer()
+    {
+        $this->temporaryBuffer = '';
+    }
 }

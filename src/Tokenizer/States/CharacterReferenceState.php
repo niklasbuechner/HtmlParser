@@ -7,6 +7,7 @@ class CharacterReferenceState implements State
 {
     public function __construct(Tokenizer $tokenizer)
     {
+        $tokenizer->clearTemporaryBuffer();
         $tokenizer->appendToTemporaryBuffer('&');
     }
 
