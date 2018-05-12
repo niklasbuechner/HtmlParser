@@ -4,7 +4,7 @@ namespace HtmlParser\Tokenizer\States;
 use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\Tokenizer\Tokens\CharacterToken;
 
-class ScriptDataEscapeStartState implements State
+class ScriptDataEscapeStartDashState implements State
 {
     /**
      * @inheritdoc
@@ -13,7 +13,7 @@ class ScriptDataEscapeStartState implements State
     {
         switch ($character) {
             case '-':
-                $tokenizer->setState(new ScriptDataEscapeStartDashState());
+                $tokenizer->setState(new ScriptDataEscapedDashDashState());
                 $tokenizer->emitToken(new CharacterToken('-'));
                 break;
 
