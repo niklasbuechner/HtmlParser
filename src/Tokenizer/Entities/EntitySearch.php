@@ -4,6 +4,11 @@ namespace HtmlParser\Tokenizer\Entities;
 class EntitySearch
 {
     /**
+     * The shortest entity still has so many characters.
+     */
+    const AMOUNT_OF_CHARACTERS_IN_SHORTEST_ENTITY = 3;
+
+    /**
      * A full list of html entities which can be downloaded at
      * https://html.spec.whatwg.org/entities.json.
      *
@@ -36,11 +41,12 @@ class EntitySearch
     public function getNamedCharacterEntity($entityReference)
     {
         $entities = $this->getAllEntities();
+        $entityCode = ltrim(rtrim($entityReference, ';'), '&');
 
-        if ($entities[$entityReference]) {
+        if ($entities['&' . $entityCode . ';']) {
             $tmpStr = '';
 
-            foreach ($entities[$entityReference]['codepoints'] as $codePoint) {
+            foreach ($entities['&' . $entityCode . ';']['codepoints'] as $codePoint) {
                 $tmpStr .= html_entity_decode('&#' . $codePoint . ';');
             }
 

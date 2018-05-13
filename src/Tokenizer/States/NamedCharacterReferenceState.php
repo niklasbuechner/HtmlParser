@@ -5,7 +5,7 @@ use \Exception;
 use HtmlParser\Tokenizer\Entities\EntitySearch;
 use HtmlParser\Tokenizer\Tokenizer;
 
-class NamedCharacterReferenceState implements State
+class NamedCharacterReferenceState extends AbstractCharacterReferenceState implements State
 {
     /**
      * @inheritdoc
@@ -16,12 +16,14 @@ class NamedCharacterReferenceState implements State
             case ';':
                 $tokenizer->appendToTemporaryBuffer($character);
 
-                $this->processTemporaryBufferAsCompleteHtmlEntity($tokenizer);
+                $this->processHtmlEntity($tokenizer, $tokenizer->getTemporaryBuffer());
                 break;
 
             default:
-                if (preg_match('/[a-zA-Z0-9]/', $character)) {
-                    $tokenizer->appendToTemporaryBuffer($character);
+                $tokenizer->appendToTemporaryBuffer($character);
+
+                if (!preg_match('/[a-zA-Z0-9]/', $character)) {
+                    $this->processHtmlEntity($tokenizer, $tokenizer->getTemporaryBuffer());
                 }
                 break;
         }
@@ -31,22 +33,85 @@ class NamedCharacterReferenceState implements State
      * Process an html entity from the temporary buffer.
      *
      * @param Tokenizer $tokenizer
+     * @param string $htmlEntity
+     * @param string $trailingCharacters
      */
-    private function processTemporaryBufferAsCompleteHtmlEntity(Tokenizer $tokenizer)
+    private function processHtmlEntity(Tokenizer $tokenizer, $htmlEntity, $trailingCharacters = '')
     {
         try {
-            $entitySearch = new EntitySearch();
-            $entity = $entitySearch->getNamedCharacterEntity($tokenizer->getTemporaryBuffer());
-
-            $returnState = $tokenizer->getReturnState();
-            $tokenizer->setState($returnState);
-
-            for ($i = 0; $i < mb_strlen($entity); $i++) {
-                $returnState->processCharacter(mb_substr($entity, 0, 1), $tokenizer);
-            }
+            $this->createCharacterFromReferenceAndFlush($tokenizer, $htmlEntity, $trailingCharacters);
         } catch (Exception $exception) {
-            //TODO
-            throw $exception;
+            $this->retryCharacterCreationRecursively($tokenizer, $htmlEntity, $trailingCharacters);
+        }
+    }
+
+    /**
+     * Creates the character from the html entity and flushes it correctly.
+     *
+     * @param Tokenizer $tokenizer
+     * @param string $htmlEntity
+     * @param string $trailingCharacters
+     */
+    private function createCharacterFromReferenceAndFlush(Tokenizer $tokenizer, $htmlEntity, $trailingCharacters = '')
+    {
+        $entitySearch = new EntitySearch();
+        $entity = $entitySearch->getNamedCharacterEntity($htmlEntity);
+
+        if ($this->preventAutoCorrectionForAttributeValues($tokenizer, $trailingCharacters)) {
+            // For hisotrical reasons, incorrect character references in attribute value
+            // states do not get autocorrection applied.
+            $this->flushCodePoints();
+        }
+
+        $tokenizer->clearTemporaryBuffer();
+        $this->flushCharacterFromEntity($tokenizer, $entity);
+
+        $tokenizer->setState($tokenizer->getReturnState());
+        for ($i = 0; $i < mb_strlen($trailingCharacters); $i++) {
+            $tokenizer->getState()->processCharacter($trailingCharacters[$i], $tokenizer);
+        }
+    }
+
+    /**
+     * For historic reasons, no auto correction is applied to character references not ending
+     * in ';' and being trailed by an alphanumeric character or an equals sign.
+     *
+     * @param Tokenizer $tokenizer
+     * @param string $trailingCharacters
+     */
+    private function preventAutoCorrectionForAttributeValues(Tokenizer $tokenizer, $trailingCharacters)
+    {
+        if ($trailingCharacters === '') {
+            return false;
+        }
+
+        $isAttributeValueCharacer = $tokenizer->getReturnState() instanceof AbstractAttributeNameState;
+        $trailedByEqualsSign = mb_substr($trailingCharacters, 0, 1) === '=';
+        $trailedByAlphaNumericCharacter = preg_match('/[a-zA-Z0-9]/', mb_substr($trailingCharacters, 0, 1));
+
+        return $isAttributeValueCharacer && ($trailedByEqualsSign || $trailedByAlphaNumericCharacter);
+    }
+
+    /**
+     * Tries to create a character recursively by removing one character and retrying the creation process.
+     * @param Tokenizer $tokenizer
+     * @param string $htmlEntity
+     * @param string $trailingCharacters
+     */
+    private function retryCharacterCreationRecursively(Tokenizer $tokenizer, $htmlEntity, $trailingCharacters = '')
+    {
+        if (mb_strlen($htmlEntity, '8bit') >= EntitySearch::AMOUNT_OF_CHARACTERS_IN_SHORTEST_ENTITY + 1) {
+            return $this->processHtmlEntity(
+                $tokenizer,
+                mb_substr($htmlEntity, 0, mb_strlen($htmlEntity, '8bit') - 1, '8bit'),
+                mb_substr($htmlEntity, mb_strlen($htmlEntity, '8bit') - 1, 1, '8bit') . $trailingCharacters
+            );
+        } else {
+            $tokenizer->clearTemporaryBuffer();
+            $tokenizer->appendToTemporaryBuffer($htmlEntity);
+            $this->flushCodePoints($tokenizer);
+
+            $tokenizer->setState(new AmbiguousAmbersandState());
         }
     }
 }

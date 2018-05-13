@@ -3,7 +3,7 @@ namespace HtmlParser\Tokenizer\States;
 
 use HtmlParser\Tokenizer\Tokenizer;
 
-class CharacterReferenceState implements State
+class CharacterReferenceState extends AbstractCharacterReferenceState implements State
 {
     public function __construct(Tokenizer $tokenizer)
     {
@@ -25,6 +25,11 @@ class CharacterReferenceState implements State
             default:
                 if (preg_match('/[a-zA-Z0-9]/', $character)) {
                     $tokenizer->setState(new NamedCharacterReferenceState());
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
+                } else {
+                    $this->flushCodePoints($tokenizer);
+
+                    $tokenizer->setState($tokenizer->getReturnState());
                     $tokenizer->getState()->processCharacter($character, $tokenizer);
                 }
                 break;
