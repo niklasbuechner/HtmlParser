@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class NumericCharacterReferenceStateTest extends TestCase
 {
-    public function testStartOfDecimalCharacterReferenceState()
+    public function testStartOfHexaDecimalCharacterReferenceState()
     {
         $tokenizer = new TestTokenizer();
         $numericCharacterReferenceState = new NumericCharacterReferenceState($tokenizer);
@@ -15,5 +15,15 @@ class NumericCharacterReferenceStateTest extends TestCase
         $numericCharacterReferenceState->processCharacter('x', $tokenizer);
 
         $this->assertInstanceOf('HtmlParser\Tokenizer\States\HexadecimalCharacterReferenceStartState', $tokenizer->getState());
+    }
+
+    public function testStartOfDecimalCharacterReferenceState()
+    {
+        $tokenizer = new TestTokenizer();
+        $numericCharacterReferenceState = new NumericCharacterReferenceState($tokenizer);
+
+        $numericCharacterReferenceState->processCharacter('0', $tokenizer);
+
+        $this->assertInstanceOf('HtmlParser\Tokenizer\States\DecimalCharacterReferenceState', $tokenizer->getState());
     }
 }

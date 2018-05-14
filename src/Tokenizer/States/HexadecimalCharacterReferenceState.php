@@ -12,8 +12,7 @@ class HexadecimalCharacterReferenceState implements State
     {
         switch ($character) {
             case ';':
-                $tokenizer->setState(new NumericCharacterReferenceEndState());
-                $tokenizer->getState()->processCharacter(';', $tokenizer);
+                $tokenizer->setState(new NumericCharacterReferenceEndState($tokenizer));
                 break;
 
             default:

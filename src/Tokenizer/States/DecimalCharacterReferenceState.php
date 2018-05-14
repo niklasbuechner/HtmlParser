@@ -12,8 +12,7 @@ class DecimalCharacterReferenceState implements State
     {
         switch ($character) {
             case ';':
-                $tokenizer->setState(new NumericCharacterReferenceEndState());
-                $tokenizer->getState()->processCharacter($character, $tokenizer);
+                $tokenizer->setState(new NumericCharacterReferenceEndState($tokenizer));
                 break;
 
             default:
@@ -21,6 +20,9 @@ class DecimalCharacterReferenceState implements State
                     $tokenizer->setCharacterReferenceCode(
                         $tokenizer->getCharacterReferenceCode() * 10 + $character
                     );
+                } else {
+                    $tokenizer->setState(new NumericCharacterReferenceEndState($tokenizer));
+                    $tokenizer->getState()->processCharacter($character, $tokenizer);
                 }
                 break;
         }
