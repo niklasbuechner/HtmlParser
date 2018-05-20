@@ -2,8 +2,13 @@
 namespace HtmlParser\TreeConstructor;
 
 use HtmlParser\Tokenizer\TokenListener;
-use HtmlParser\Tokens\Token;
+use HtmlParser\Tokenizer\Tokens\CharacterToken;
+use HtmlParser\Tokenizer\Tokens\CommentToken;
+use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\TreeConstructor\InsertionModes\InitialInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InsertionMode;
+use HtmlParser\TreeConstructor\Nodes\CommentNode;
+use HtmlParser\TreeConstructor\Nodes\DocumentNode;
 
 class TreeConstructor implements TokenListener
 {
@@ -12,9 +17,15 @@ class TreeConstructor implements TokenListener
      */
     private $insertionMode;
 
+    /**
+     * @var DocumentNode
+     */
+    private $document;
+
     public function __construct()
     {
         $this->insertionMode = new InitialInsertionMode();
+        $this->document = new DocumentNode();
     }
 
     /**
@@ -30,7 +41,7 @@ class TreeConstructor implements TokenListener
      *
      * @param InsertionMode $insertionMode
      */
-    public function setMode(InsertionMode $insertionMode)
+    public function setInsertionMode(InsertionMode $insertionMode)
     {
         $this->insertionMode = $insertionMode;
     }
@@ -43,5 +54,25 @@ class TreeConstructor implements TokenListener
     public function getInsertionMode()
     {
         return $this->insertionMode;
+    }
+
+    /**
+     * Returns the current document node.
+     *
+     * @return DocumentNode
+     */
+    public function getDocumentNode()
+    {
+        return $this->document;
+    }
+
+    /**
+     * Adds a comment to the document node object.
+     *
+     * @param CommentToken $commentToken
+     */
+    public function addComment(CommentToken $commentToken)
+    {
+        $this->document->appendChild(new CommentNode($commentToken->getData()));
     }
 }
