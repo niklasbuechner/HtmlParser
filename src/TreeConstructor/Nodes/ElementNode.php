@@ -19,6 +19,11 @@ class ElementNode
     private $attributes;
 
     /**
+     * @var ElementNode[]
+     */
+    private $children;
+
+    /**
      * @param string $name
      * @param DocumentNode|ElementNode $parent
      */
@@ -28,6 +33,7 @@ class ElementNode
         $this->parent = $parent;
 
         $this->attributes = $attributes;
+        $this->children = [];
     }
 
     /**
@@ -44,5 +50,21 @@ class ElementNode
     public function getAttributes()
     {
         return $this->attributes;
+    }
+
+    /**
+     * @param ElementNode $child
+     */
+    public function appendChild(ElementNode $child)
+    {
+        $this->children[] = $child;
+    }
+
+    /**
+     * @return ElementNode[]
+     */
+    public function getChildren()
+    {
+        return $this->children;
     }
 }

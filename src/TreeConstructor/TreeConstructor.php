@@ -29,6 +29,11 @@ class TreeConstructor implements TokenListener
      */
     private $stackOfOpenElements;
 
+    /**
+     * @var ElementNode
+     */
+    private $headPointer;
+
     public function __construct()
     {
         $this->insertionMode = new InitialInsertionMode();
@@ -107,6 +112,22 @@ class TreeConstructor implements TokenListener
     }
 
     /**
+     * Inserts a node at the correct place.
+     *
+     * @param ElementNode $node
+     */
+    public function insertNode(ElementNode $node)
+    {
+        if (count($this->stackOfOpenElements) > 0) {
+            $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1]->appendChild($node);
+        } else {
+            $this->getDocumentNode()->appendChild($node);
+        }
+
+        $this->addElementToStackOfOpenElements($node);
+    }
+
+    /**
      * Pushs an element onto the stack of open elements.
      *
      * @param ElementNode $node
@@ -122,5 +143,21 @@ class TreeConstructor implements TokenListener
     public function getStackOfOpenElements()
     {
         return $this->stackOfOpenElements;
+    }
+
+    /**
+     * @param ElementNode $head
+     */
+    public function setHeadPointer($head)
+    {
+        $this->headPointer = $head;
+    }
+
+    /**
+     * @return ElementNode
+     */
+    public function getHeadPointer()
+    {
+        return $this->headPointer;
     }
 }
