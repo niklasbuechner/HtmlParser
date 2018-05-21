@@ -1,6 +1,7 @@
 <?php
 namespace HtmlParser\TreeConstructor\InsertionModes;
 
+use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
 use HtmlParser\Tokenizer\Tokens\Token;
@@ -16,11 +17,25 @@ class InitialInsertionMode implements InsertionMode
     {
         if ($token instanceof CommentToken) {
             $treeConstructor->addComment($token);
-        } elseif ($token instanceof DoctypeToken) {
+
+            return;
+        }
+
+        if ($token instanceof DoctypeToken) {
             $treeConstructor->getDocumentNode()->setDoctypeAttribute(
                 DoctypeNode::fromToken($token)
             );
             $treeConstructor->setInsertionMode(new BeforeHtmlInsertionMode());
+
+            return;
         }
+
+        if ($token instanceof CharacterToken && preg_match('/\s/', $token->getCharacter())) {
+            return;
+        }
+
+        // Parser error
+        $treeConstructor->setInsertionMode(new BeforeHtmlInsertionMode());
+        $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor);
     }
 }

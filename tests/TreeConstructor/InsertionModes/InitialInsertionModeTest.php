@@ -56,4 +56,14 @@ class InitialInsertionModeTest extends TestCase
 
         $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\BeforeHtmlInsertionMode', $treeConstructor->getInsertionMode());
     }
+
+    public function testOtherToken()
+    {
+        $treeConstructor = new TreeConstructor();
+        $treeConstructor->setInsertionMode(new InitialInsertionMode());
+
+        $treeConstructor->getInsertionMode()->processToken(new CharacterToken('a'), $treeConstructor);
+
+        $this->assertFalse($treeConstructor->getInsertionMode() instanceof InitialInsertionMode);
+    }
 }
