@@ -44,6 +44,7 @@ class StartTagToken implements Token
     public function appendCharacterToName($character)
     {
         $this->name .= mb_strtolower($character);
+        $this->attributes = [];
     }
 
     /**
