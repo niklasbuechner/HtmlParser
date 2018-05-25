@@ -6,6 +6,7 @@ use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\TreeConstructor\InsertionModes\InitialInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InsertionMode;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
@@ -33,6 +34,16 @@ class TreeConstructor implements TokenListener
      * @var ElementNode
      */
     private $headPointer;
+
+    /**
+     * @var InsertionMode
+     */
+    private $originalInsertionMode;
+
+    /**
+     * @var Tokenizer
+     */
+    private $tokenizer;
 
     public function __construct()
     {
@@ -86,7 +97,13 @@ class TreeConstructor implements TokenListener
      */
     public function addComment(CommentToken $commentToken)
     {
-        $this->document->appendChild(new CommentNode($commentToken->getData()));
+        if (count($this->stackOfOpenElements) > 0) {
+            $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1]->appendChild(
+                new CommentNode($commentToken->getData())
+            );
+        } else {
+            $this->document->appendChild(new CommentNode($commentToken->getData()));
+        }
     }
 
     /**
@@ -138,6 +155,16 @@ class TreeConstructor implements TokenListener
     }
 
     /**
+     * Pops the last element of the stack of open elements.
+     */
+    public function popLastElementOfStackOfOpenElements()
+    {
+        if (count($this->stackOfOpenElements) > 0) {
+            array_pop($this->stackOfOpenElements);
+        }
+    }
+
+    /**
      * @return ElementNode[]
      */
     public function getStackOfOpenElements()
@@ -159,5 +186,37 @@ class TreeConstructor implements TokenListener
     public function getHeadPointer()
     {
         return $this->headPointer;
+    }
+
+    /**
+     * @param InsertionMode $insertionMode
+     */
+    public function setOriginalInsertionMode(InsertionMode $insertionMode)
+    {
+        $this->originalInsertionMode = $insertionMode;
+    }
+
+    /**
+     * @return InsertionMode
+     */
+    public function getOriginalInsertionMode()
+    {
+        return $this->originalInsertionMode;
+    }
+
+    /**
+     * @param Tokenizer $tokenizer
+     */
+    public function setTokenizer(Tokenizer $tokenizer)
+    {
+        $this->tokenizer = $tokenizer;
+    }
+
+    /**
+     * @return Tokenizer
+     */
+    public function getTokenizer()
+    {
+        return $this->tokenizer;
     }
 }

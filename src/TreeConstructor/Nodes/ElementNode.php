@@ -19,7 +19,7 @@ class ElementNode
     private $attributes;
 
     /**
-     * @var ElementNode[]
+     * @var Node[]
      */
     private $children;
 
@@ -53,9 +53,9 @@ class ElementNode
     }
 
     /**
-     * @param ElementNode $child
+     * @param Node $child
      */
-    public function appendChild(ElementNode $child)
+    public function appendChild($child)
     {
         $this->children[] = $child;
     }
