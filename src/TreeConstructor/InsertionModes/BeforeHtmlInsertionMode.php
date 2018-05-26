@@ -6,7 +6,8 @@ use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
 use HtmlParser\Tokenizer\Tokens\EndTagToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
-use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\TreeConstructor\DomBuilder;
+use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\TreeConstructor;
 
 class BeforeHtmlInsertionMode implements InsertionMode
@@ -29,7 +30,7 @@ class BeforeHtmlInsertionMode implements InsertionMode
     /**
      * @inheritdoc
      */
-    public function processToken(Token $token, TreeConstructor $treeConstructor)
+    public function processToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
     {
         if ($token instanceof CommentToken) {
             $treeConstructor->addComment($token);
@@ -60,11 +61,9 @@ class BeforeHtmlInsertionMode implements InsertionMode
             return;
         }
 
-        $htmlElement = $treeConstructor->createElementFromTagName('html');
-        $treeConstructor->getDocumentNode()->appendChild($htmlElement);
-        $treeConstructor->addElementToStackOfOpenElements($htmlElement);
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('html'));
 
-        $treeConstructor->setInsertionMode(new BeforeHeadInsertionMode());
-        $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor);
+        // $treeConstructor->setInsertionMode(new BeforeHeadInsertionMode());
+        // $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor);
     }
 }

@@ -27,10 +27,9 @@ class ElementNode
      * @param string $name
      * @param DocumentNode|ElementNode $parent
      */
-    public function __construct($name, $parent, $attributes = [])
+    public function __construct($name, $attributes = [])
     {
         $this->name = $name;
-        $this->parent = $parent;
 
         $this->attributes = $attributes;
         $this->children = [];
