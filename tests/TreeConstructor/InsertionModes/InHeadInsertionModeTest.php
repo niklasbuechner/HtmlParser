@@ -4,8 +4,10 @@ namespace HtmlParser\Tests\TreeConstructor\InsertionModes;
 use HtmlParser\Tests\TestResources\TestDomBuilderFactory;
 use HtmlParser\Tests\TestResources\TestTreeConstructionTokenizer;
 use HtmlParser\Tokenizer\HtmlTokenizer;
+use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
+use HtmlParser\Tokenizer\Tokens\EndTagToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InHeadInsertionMode;
@@ -109,5 +111,97 @@ class InHeadInsertionModeTest extends TestCase
         $this->assertEquals('title', $domBuilder->getCurrentNode()->getName());
         $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\TextInsertionMode', $treeConstructor->getInsertionMode());
         $this->assertTrue($treeConstructor->getTokenizer()->isInRcdataState());
+    }
+
+    public function testRawTextElement()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $treeConstructor->setTokenizer(new TestTreeConstructionTokenizer());
+
+        $titleTagToken = new StartTagToken();
+        $titleTagToken->appendCharacterToName('style');
+
+        $inHeadInsertionMode->processToken($titleTagToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('style', $domBuilder->getCurrentNode()->getName());
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\TextInsertionMode', $treeConstructor->getInsertionMode());
+        $this->assertTrue($treeConstructor->getTokenizer()->isInRawTextState());
+    }
+
+    public function testScriptTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $treeConstructor->setTokenizer(new TestTreeConstructionTokenizer());
+
+        $titleTagToken = new StartTagToken();
+        $titleTagToken->appendCharacterToName('script');
+
+        $inHeadInsertionMode->processToken($titleTagToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('script', $domBuilder->getCurrentNode()->getName());
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\TextInsertionMode', $treeConstructor->getInsertionMode());
+        $this->assertTrue($treeConstructor->getTokenizer()->isInScriptDataState());
+    }
+
+    public function testHeadEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $headEndTag = new EndTagToken();
+        $headEndTag->appendCharacterToName('head');
+
+        $inHeadInsertionMode->processToken($headEndTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('html', $domBuilder->getCurrentNode()->getName());
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode', $treeConstructor->getInsertionMode());
+    }
+
+    public function testAcceptableEndTags()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $treeConstructor->setInsertionMode($inHeadInsertionMode);
+
+        $headEndTag = new EndTagToken();
+        $headEndTag->appendCharacterToName('body');
+
+        $inHeadInsertionMode->processToken($headEndTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertFalse($treeConstructor->getInsertionMode() instanceof InHeadInsertionMode);
+    }
+
+    public function testWhitespace()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $inHeadInsertionMode->processToken(
+            new CharacterToken('a'),
+            $treeConstructor,
+            $elementFactory,
+            $domBuilder
+        );
+
+        $this->assertInstanceOf(
+            'HtmlParser\TreeConstructor\Nodes\TextNode',
+            $domBuilder->getCurrentNode()->getLastChild()
+        );
+        $this->assertEquals('a', $domBuilder->getCurrentNode()->getLastChild()->getData());
     }
 }

@@ -7,4 +7,14 @@ interface Tokenizer
      * Switch the tokenizer to use Rcdata tokenization.
      */
     public function switchToRcdataTokenization();
+
+    /**
+     * Switch the tokenizer to use raw text tokenization.
+     */
+    public function switchToRawTextTokenization();
+
+    /**
+     * Switch the tokenizer to use script tokenization.
+     */
+    public function switchToScriptDataTokenization();
 }

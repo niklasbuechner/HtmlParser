@@ -2,6 +2,7 @@
 namespace HtmlParser\Tests\TreeConstructor;
 
 use HtmlParser\TreeConstructor\DomBuilder;
+use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
 use HtmlParser\TreeConstructor\Nodes\ElementNode;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +39,7 @@ class DomBuilderTest extends TestCase
         $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\DocumentNode', $domBuilder->getCurrentNode());
     }
 
-    public function preventDocumentNodeFromBeingPopedOfStackOfOpenElements()
+    public function testPreventDocumentNodeFromBeingPopedOfStackOfOpenElements()
     {
         $domBuilder = new DomBuilder();
 
@@ -47,5 +48,43 @@ class DomBuilderTest extends TestCase
         $domBuilder->popLastElementOfStackOfOpenElements();
 
         $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\DocumentNode', $domBuilder->getCurrentNode());
+    }
+
+    public function testInsertCharacterIntoDocument()
+    {
+        $domBuilder = new DomBuilder();
+
+        $domBuilder->insertCharacter('Hi');
+    }
+
+    public function testInsertCharacterIntoNewTextNode()
+    {
+        $domBuilder = new DomBuilder();
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('div'));
+
+        $domBuilder->insertCharacter('a');
+
+        $nodes = $domBuilder->getCurrentNode()->getChildren();
+
+        $this->assertCount(1, $nodes);
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\TextNode', $nodes[0]);
+        $this->assertEquals('a', $nodes[0]->getData());
+    }
+
+    public function testInsertCharacterIntoExistingNode()
+    {
+        $domBuilder = new DomBuilder();
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('div'));
+
+        $domBuilder->insertCharacter('a');
+        $domBuilder->insertCharacter('b');
+        $domBuilder->insertCharacter('c');
+        $domBuilder->insertCharacter('d');
+
+        $nodes = $domBuilder->getCurrentNode()->getChildren();
+
+        $this->assertCount(1, $nodes);
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\TextNode', $nodes[0]);
+        $this->assertEquals('abcd', $nodes[0]->getData());
     }
 }

@@ -4,6 +4,7 @@ namespace HtmlParser\TreeConstructor;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
 use HtmlParser\TreeConstructor\Nodes\DocumentNode;
 use HtmlParser\TreeConstructor\Nodes\ElementNode;
+use HtmlParser\TreeConstructor\Nodes\TextNode;
 
 class DomBuilder
 {
@@ -25,6 +26,24 @@ class DomBuilder
     public function getDocumentNode()
     {
         return $this->stackOfOpenElements[0];
+    }
+
+    /**
+     * @return Node[]
+     */
+    public function getStackOfOpenElements()
+    {
+        return $this->stackOfOpenElements;
+    }
+
+    /**
+     * Returns the current node to work with.
+     *
+     * @return Node
+     */
+    public function getCurrentNode()
+    {
+        return $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1];
     }
 
     /**
@@ -70,20 +89,22 @@ class DomBuilder
     }
 
     /**
-     * @return Node[]
-     */
-    public function getStackOfOpenElements()
-    {
-        return $this->stackOfOpenElements;
-    }
-
-    /**
-     * Returns the current node to work with.
+     * Insert a character to its correct position.
      *
-     * @return Node
+     * @param string $character
      */
-    public function getCurrentNode()
+    public function insertCharacter($character)
     {
-        return $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1];
+        if ($this->getCurrentNode() instanceof DocumentNode) {
+            return;
+        }
+
+        if (!$this->getCurrentNode()->getLastChild() instanceof TextNode) {
+            $this->getCurrentNode()->appendChild(new TextNode($character));
+
+            return;
+        }
+
+        $this->getCurrentNode()->getLastChild()->appendToData($character);
     }
 }

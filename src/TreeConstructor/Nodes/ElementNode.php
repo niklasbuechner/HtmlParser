@@ -66,4 +66,16 @@ class ElementNode
     {
         return $this->children;
     }
+
+    /**
+     * @return Node
+     */
+    public function getLastChild()
+    {
+        if (count($this->children) === 0) {
+            return;
+        }
+
+        return $this->children[count($this->children) - 1];
+    }
 }
