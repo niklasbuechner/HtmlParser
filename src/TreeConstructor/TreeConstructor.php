@@ -6,12 +6,12 @@ use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use HtmlParser\Tokenizer\Tokens\Token;
-use HtmlParser\Tokenizer\Tokenizer;
 use HtmlParser\TreeConstructor\InsertionModes\InitialInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InsertionMode;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
 use HtmlParser\TreeConstructor\Nodes\DocumentNode;
 use HtmlParser\TreeConstructor\Nodes\ElementNode;
+use HtmlParser\TreeConstructor\Tokenizer;
 
 class TreeConstructor implements TokenListener
 {

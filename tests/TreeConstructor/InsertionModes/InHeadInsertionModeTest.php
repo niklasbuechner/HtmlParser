@@ -1,96 +1,113 @@
 <?php
 namespace HtmlParser\Tests\TreeConstructor\InsertionModes;
 
+use HtmlParser\Tests\TestResources\TestDomBuilderFactory;
+use HtmlParser\Tests\TestResources\TestTreeConstructionTokenizer;
 use HtmlParser\Tokenizer\HtmlTokenizer;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
-// use HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode;
-// use HtmlParser\TreeConstructor\InsertionModes\InHeadInsertionMode;
+use HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode;
+use HtmlParser\TreeConstructor\InsertionModes\InHeadInsertionMode;
+use HtmlParser\TreeConstructor\DomBuilder;
+use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\TreeConstructor;
 use PHPUnit\Framework\TestCase;
 
 class InHeadInsertionModeTest extends TestCase
 {
-    // public function testMetaTag()
-    // {
-    //     $treeConstructor = new TreeConstructor();
-    //     $inHeadInsertionMode = new InHeadInsertionMode();
+    public function testMetaTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
 
-    //     $metaTagToken = new StartTagToken();
-    //     $metaTagToken->appendCharacterToName('meta');
+        $metaTagToken = new StartTagToken();
+        $metaTagToken->appendCharacterToName('meta');
 
-    //     $inHeadInsertionMode->processToken($metaTagToken, $treeConstructor);
+        $inHeadInsertionMode->processToken($metaTagToken, $treeConstructor, $elementFactory, $domBuilder);
 
-    //     $this->assertCount(0, $treeConstructor->getStackOfOpenElements());
-    //     $this->assertCount(1, $treeConstructor->getDocumentNode()->getChildren());
-    // }
+        $this->assertEquals('head', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(1, $domBuilder->getCurrentNode()->getChildren());
+        $this->assertEquals('meta', $domBuilder->getCurrentNode()->getChildren()[0]->getName());
+    }
 
-    // public function testLinkTag()
-    // {
-    //     $treeConstructor = new TreeConstructor();
-    //     $inHeadInsertionMode = new InHeadInsertionMode();
+    public function testLinkTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
 
-    //     $linkTagToken = new StartTagToken();
-    //     $linkTagToken->appendCharacterToName('link');
+        $linkTagToken = new StartTagToken();
+        $linkTagToken->appendCharacterToName('link');
 
-    //     $inHeadInsertionMode->processToken($linkTagToken, $treeConstructor);
+        $inHeadInsertionMode->processToken($linkTagToken, $treeConstructor, $elementFactory, $domBuilder);
 
-    //     $this->assertCount(0, $treeConstructor->getStackOfOpenElements());
-    //     $this->assertCount(1, $treeConstructor->getDocumentNode()->getChildren());
-    // }
+        $this->assertEquals('head', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(1, $domBuilder->getCurrentNode()->getChildren());
+        $this->assertEquals('link', $domBuilder->getCurrentNode()->getChildren()[0]->getName());
+    }
 
-    // public function testDoctypeTag()
-    // {
-    //     $treeConstructor = new TreeConstructor();
-    //     $inHeadInsertionMode = new InHeadInsertionMode();
+    public function testDoctypeTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
 
-    //     $inHeadInsertionMode->processToken(new DoctypeToken(), $treeConstructor);
+        $inHeadInsertionMode->processToken(new DoctypeToken(), $treeConstructor, $elementFactory, $domBuilder);
 
-    //     $this->assertCount(0, $treeConstructor->getStackOfOpenElements());
-    //     $this->assertCount(0, $treeConstructor->getDocumentNode()->getChildren());
-    //     $this->assertFalse($treeConstructor->getInsertionMode() instanceof AfterHeadInsertionMode);
-    // }
+        $this->assertFalse($treeConstructor->getInsertionMode() instanceof AfterHeadInsertionMode);
+    }
 
-    // public function testAnyOtherToken()
-    // {
-    //     $treeConstructor = new TreeConstructor();
-    //     $inHeadInsertionMode = new InHeadInsertionMode();
+    public function testAnyOtherToken()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
 
-    //     $treeConstructor->insertNode($treeConstructor->createElementFromTagName('div'));
-    //     $inHeadInsertionMode->processToken(new StartTagToken(), $treeConstructor);
+        $inHeadInsertionMode->processToken(new StartTagToken(), $treeConstructor, $elementFactory, $domBuilder);
 
-    //     $this->assertCount(0, $treeConstructor->getStackOfOpenElements());
-    //     $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode', $treeConstructor->getInsertionMode());
-    // }
+        $this->assertEquals('html', $domBuilder->getCurrentNode()->getName());
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode', $treeConstructor->getInsertionMode());
+    }
 
-    // public function testComment()
-    // {
-    //     $treeConstructor = new TreeConstructor();
-    //     $treeConstructor->insertNode($treeConstructor->createElementFromTagName('head'));
-    //     $inHeadInsertionMode = new InHeadInsertionMode();
+    public function testComment()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
 
-    //     $inHeadInsertionMode->processToken(new CommentToken(), $treeConstructor);
-    //     $stackOfOpenElements = $treeConstructor->getStackOfOpenElements();
-    //     $children = $stackOfOpenElements[count($stackOfOpenElements) - 1]->getChildren();
+        $inHeadInsertionMode->processToken(new CommentToken(), $treeConstructor, $elementFactory, $domBuilder);
 
-    //     $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\CommentNode', $children[count($children) - 1]);
-    // }
+        $this->assertEquals('head', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(1, $domBuilder->getCurrentNode()->getChildren());
+        $this->assertInstanceOf(
+            'HtmlParser\TreeConstructor\Nodes\CommentNode',
+            $domBuilder->getCurrentNode()->getChildren()[0]
+        );
+    }
 
-    // public function testTitle()
-    // {
-    //     $treeConstructor = new TreeConstructor();
-    //     $treeConstructor->setTokenizer(new HtmlTokenizer($treeConstructor));
-    //     $inHeadInsertionMode = new InHeadInsertionMode();
+    public function testTitle()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
 
-    //     $titleTagToken = new StartTagToken();
-    //     $titleTagToken->appendCharacterToName('title');
+        $treeConstructor->setTokenizer(new TestTreeConstructionTokenizer());
 
-    //     $inHeadInsertionMode->processToken($titleTagToken, $treeConstructor);
-    //     $stackOfOpenElements = $treeConstructor->getStackOfOpenElements();
+        $titleTagToken = new StartTagToken();
+        $titleTagToken->appendCharacterToName('title');
 
-    //     $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\ElementNode', $stackOfOpenElements[count($stackOfOpenElements) - 1]);
-    //     $this->assertEquals('title', $stackOfOpenElements[count($stackOfOpenElements) - 1]->getName());
-    //     $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\TextInsertionMode', $treeConstructor->getInsertionMode());
-    // }
+        $inHeadInsertionMode->processToken($titleTagToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('title', $domBuilder->getCurrentNode()->getName());
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\TextInsertionMode', $treeConstructor->getInsertionMode());
+        $this->assertTrue($treeConstructor->getTokenizer()->isInRcdataState());
+    }
 }

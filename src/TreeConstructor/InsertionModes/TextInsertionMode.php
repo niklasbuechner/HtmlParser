@@ -1,7 +1,8 @@
 <?php
 namespace HtmlParser\TreeConstructor\InsertionModes;
 
-use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\TreeConstructor\DomBuilder;
+use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\TreeConstructor;
 
 class TextInsertionMode implements InsertionMode
@@ -9,7 +10,7 @@ class TextInsertionMode implements InsertionMode
     /**
      * @inheritdoc
      */
-    public function processToken(Token $token, TreeConstructor $treeConstructor)
+    public function processToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
     {
     }
 }

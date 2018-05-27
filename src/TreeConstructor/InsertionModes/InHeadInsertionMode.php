@@ -1,11 +1,11 @@
 <?php
 namespace HtmlParser\TreeConstructor\InsertionModes;
 
-use HtmlParser\Tokenizer\States\RcdataState;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
-use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\TreeConstructor\DomBuilder;
+use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\TreeConstructor;
 
 class InHeadInsertionMode implements InsertionMode
@@ -29,40 +29,56 @@ class InHeadInsertionMode implements InsertionMode
     /**
      * @inheritdoc
      */
-    public function processToken(Token $token, TreeConstructor $treeConstructor)
+    public function processToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
     {
         // TODO Character
         // TODO html
         if ($token instanceof StartTagToken) {
-            if (in_array($token->getName(), self::$selfClosingHeadTags)) {
-                $treeConstructor->insertNode($treeConstructor->createElementFromToken($token));
-                $treeConstructor->popLastElementOfStackOfOpenElements();
-
-                return;
-            }
-
-            if ($token->getName() === 'title') {
-                $treeConstructor->insertNode($treeConstructor->createElementFromToken($token));
-
-                $treeConstructor->setOriginalInsertionMode($this);
-                $treeConstructor->setInsertionMode(new TextInsertionMode());
-                $treeConstructor->getTokenizer()->setState(new RcdataState());
-
-                return;
-            }
-        }
-
-        if ($token instanceof DoctypeToken) {
+            $this->processStartTagToken($token, $treeConstructor, $elementFactory, $domBuilder);
+        } elseif ($token instanceof DoctypeToken) {
             return;
+        } elseif ($token instanceof CommentToken) {
+            $domBuilder->addComment($elementFactory->createCommentFromToken($token));
+        } else {
+            $this->processUnexpectedToken($token, $treeConstructor, $elementFactory, $domBuilder);
         }
+    }
 
-        if ($token instanceof CommentToken) {
-            $treeConstructor->addComment($token);
+    /**
+     * Processes a start tag token.
+     *
+     * @param StartTagToken $token
+     * @param TreeConstructor $treeConstructor
+     * @param ElementFactory $elementFactory
+     * @param DomBuilder $domBuilder
+     */
+    private function processStartTagToken(StartTagToken $token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
+    {
+        if (in_array($token->getName(), self::$selfClosingHeadTags)) {
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $domBuilder->popLastElementOfStackOfOpenElements();
+        } elseif ($token->getName() === 'title') {
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
 
-            return;
+            $treeConstructor->setOriginalInsertionMode($this);
+            $treeConstructor->setInsertionMode(new TextInsertionMode());
+            $treeConstructor->getTokenizer()->switchToRcdataTokenization();
+        } else {
+            $this->processUnexpectedToken($token, $treeConstructor, $elementFactory, $domBuilder);
         }
+    }
 
-        $treeConstructor->popLastElementOfStackOfOpenElements();
+    /**
+     * Processes an unexpected tag token.
+     *
+     * @param $token
+     * @param TreeConstructor $treeConstructor
+     * @param ElementFactory $elementFactory
+     * @param DomBuilder $domBuilder
+     */
+    private function processUnexpectedToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
+    {
+        $domBuilder->popLastElementOfStackOfOpenElements();
         $treeConstructor->setInsertionMode(new AfterHeadInsertionMode());
     }
 }

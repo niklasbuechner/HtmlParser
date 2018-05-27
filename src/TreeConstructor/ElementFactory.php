@@ -45,7 +45,7 @@ class ElementFactory
      * @param CommentToken $comment
      * @return CommentNode
      */
-    public function createCommentNodeFromToken(CommentToken $comment)
+    public function createCommentFromToken(CommentToken $comment)
     {
         return new CommentNode($comment->getData());
     }

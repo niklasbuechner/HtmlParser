@@ -18,7 +18,7 @@ class InitialInsertionMode implements InsertionMode
     public function processToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
     {
         if ($token instanceof CommentToken) {
-            $domBuilder->addComment($elementFactory->createCommentNodeFromToken($token));
+            $domBuilder->addComment($elementFactory->createCommentFromToken($token));
         } elseif ($token instanceof DoctypeToken) {
             $domBuilder->getDocumentNode()->setDoctypeAttribute(
                 $elementFactory->createDoctypeFromToken($token)

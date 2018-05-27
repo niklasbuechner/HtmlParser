@@ -6,7 +6,8 @@ use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
 use HtmlParser\Tokenizer\Tokens\EndTagToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
-use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\TreeConstructor\DomBuilder;
+use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\TreeConstructor;
 
 class BeforeHeadInsertionMode implements InsertionMode
@@ -29,38 +30,26 @@ class BeforeHeadInsertionMode implements InsertionMode
     /**
      * @inheritdoc
      */
-    public function processToken(Token $token, TreeConstructor $treeConstructor)
+    public function processToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
     {
         if ($token instanceof CommentToken) {
-            $treeConstructor->addComment($token);
+            $domBuilder->addComment($elementFactory->createCommentFromToken($token));
 
             return;
-        }
-
-        if ($token instanceof CharacterToken && preg_match('/\s/', $token->getCharacter())) {
+        } elseif ($token instanceof CharacterToken && preg_match('/\s/', $token->getCharacter())) {
             return;
-        }
-
-        if ($token instanceof DoctypeToken) {
+        } elseif ($token instanceof DoctypeToken) {
             // TODO parser error
             return;
-        }
-
-        if ($token instanceof StartTagToken && $token->getName() === 'head') {
-            $headNode = $treeConstructor->createElementFromToken($token);
-            $treeConstructor->insertNode($headNode);
-            $treeConstructor->setHeadPointer($headNode);
+        } elseif ($token instanceof StartTagToken && $token->getName() === 'head') {
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
             $treeConstructor->setInsertionMode(new InHeadInsertionMode());
-        }
-
-        if ($token instanceof EndTagToken && !in_array($token->getName(), $this->acceptableEndTagNames)) {
+        } elseif ($token instanceof EndTagToken && !in_array($token->getName(), $this->acceptableEndTagNames)) {
             return;
+        } else {
+            $domBuilder->insertNode($elementFactory->createElementFromTagName('head'));
+            $treeConstructor->setInsertionMode(new InHeadInsertionMode());
+            $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor, $elementFactory, $domBuilder);
         }
-
-        $headNode = $treeConstructor->createElementFromTagName('head');
-        $treeConstructor->insertNode($headNode);
-        $treeConstructor->setHeadPointer($headNode);
-        $treeConstructor->setInsertionMode(new InHeadInsertionMode());
-        $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor);
     }
 }

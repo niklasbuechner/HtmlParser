@@ -33,37 +33,23 @@ class BeforeHtmlInsertionMode implements InsertionMode
     public function processToken($token, TreeConstructor $treeConstructor, ElementFactory $elementFactory, DomBuilder $domBuilder)
     {
         if ($token instanceof CommentToken) {
-            $treeConstructor->addComment($token);
-
+            $domBuilder->addComment($elementFactory->createCommentFromToken($token));
+        } elseif ($token instanceof DoctypeToken) {
             return;
-        }
-
-        if ($token instanceof DoctypeToken) {
+        } elseif ($token instanceof CharacterToken && preg_match('/\s/', $token->getCharacter())) {
             return;
-        }
-
-        if ($token instanceof CharacterToken && preg_match('/\s/', $token->getCharacter())) {
-            return;
-        }
-
-        if ($token instanceof StartTagToken && $token->getName() === 'html') {
-            $htmlElement = $treeConstructor->createElementFromToken($token);
-            $treeConstructor->getDocumentNode()->appendChild($htmlElement);
-            $treeConstructor->addElementToStackOfOpenElements($htmlElement);
+        } elseif ($token instanceof StartTagToken && $token->getName() === 'html') {
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
 
             $treeConstructor->setInsertionMode(new BeforeHeadInsertionMode());
-
-            return;
-        }
-
-        if ($token instanceof EndTagToken && !in_array($token->getName(), $this->acceptableEndTagNames)) {
+        } elseif ($token instanceof EndTagToken && !in_array($token->getName(), $this->acceptableEndTagNames)) {
             // Parse error
             return;
+        } else {
+            $domBuilder->insertNode($elementFactory->createElementFromTagName('html'));
+
+            $treeConstructor->setInsertionMode(new BeforeHeadInsertionMode());
+            $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor, $elementFactory, $domBuilder);
         }
-
-        $domBuilder->insertNode($elementFactory->createElementFromTagName('html'));
-
-        // $treeConstructor->setInsertionMode(new BeforeHeadInsertionMode());
-        // $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor);
     }
 }
