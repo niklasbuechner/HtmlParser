@@ -19,6 +19,14 @@ class DocumentNode
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'document';
+    }
+
+    /**
      * Adds a node as last child.
      *
      * @param Node $child

@@ -87,4 +87,32 @@ class DomBuilderTest extends TestCase
         $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\TextNode', $nodes[0]);
         $this->assertEquals('abcd', $nodes[0]->getData());
     }
+
+    public function testGenerateImpliedEndTagsThorougly()
+    {
+        $domBuilder = new DomBuilder();
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('p'));
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('caption'));
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('tr'));
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('li'));
+
+        $domBuilder->generateImpliedEndTagsThoroughly();
+
+        $this->assertCount(1, $domBuilder->getStackOfOpenElements());
+    }
+
+    public function testClearListOfActiveFormattingElementsToNextMarker()
+    {
+        $elementFactory = new ElementFactory();
+
+        $domBuilder = new DomBuilder();
+        $domBuilder->pushMarkerOntoListOfActiveFormattingElements();
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('i'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('b'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('u'));
+
+        $domBuilder->clearListOfActiveFormattingElementsToNextMarker();
+
+        $this->assertCount(0, $domBuilder->getListOfActiveFormattingElements());
+    }
 }

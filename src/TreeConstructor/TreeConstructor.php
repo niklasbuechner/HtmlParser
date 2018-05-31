@@ -6,6 +6,7 @@ use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use HtmlParser\Tokenizer\Tokens\Token;
+use HtmlParser\TreeConstructor\InsertionModes\InHeadInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InitialInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InsertionMode;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
@@ -26,6 +27,11 @@ class TreeConstructor implements TokenListener
     private $originalInsertionMode;
 
     /**
+     * @var array
+     */
+    private $stackOfTemplateInsertionModes;
+
+    /**
      * @var Tokenizer
      */
     private $tokenizer;
@@ -34,6 +40,7 @@ class TreeConstructor implements TokenListener
     {
         $this->insertionMode = new InitialInsertionMode();
         $this->stackOfOpenElements = [];
+        $this->stackOfTemplateInsertionModes = [];
     }
 
     /**
@@ -94,5 +101,37 @@ class TreeConstructor implements TokenListener
     public function getTokenizer()
     {
         return $this->tokenizer;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStackOfTemplateInsertionModes()
+    {
+        return  $this->stackOfTemplateInsertionModes;
+    }
+
+    /**
+     * @param InsertionMode $insertionMode
+     */
+    public function addInsertionModeToStackOfTemplateInsertionModes(InsertionMode $insertionMode)
+    {
+        $this->stackOfTemplateInsertionModes[] = $insertionMode;
+    }
+
+    /**
+     * @return InsertionMode
+     */
+    public function popCurrentTemplateInsertionMode()
+    {
+        return array_pop($this->stackOfTemplateInsertionModes);
+    }
+
+    /**
+     * Determines the insertion mode and resets.
+     */
+    public function resetInsertionMode()
+    {
+        $this->setInsertionMode(new InHeadInsertionMode());
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace HtmlParser\TreeConstructor;
 
+use HtmlParser\TreeConstructor\DomBuilder\ActiveFormattingMarker;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
 use HtmlParser\TreeConstructor\Nodes\DocumentNode;
 use HtmlParser\TreeConstructor\Nodes\ElementNode;
@@ -11,11 +12,48 @@ class DomBuilder
     /**
      * @var ElementNode[]
      */
+    private $listOfActiveFormattingElements;
+
+    /**
+     * @var ElementNode[]
+     */
     private $stackOfOpenElements;
+
+    /**
+     * @var boolean
+     */
+    private $framesetOkayFlag;
+
+    /**
+     * @var string[]
+     */
+    private $tagsWithImpliedEndTags;
 
     public function __construct()
     {
         $this->stackOfOpenElements = [new DocumentNode()];
+        $this->listOfActiveFormattingElements = [];
+        $this->framesetOkayFlag = true;
+        $this->tagsWithImpliedEndTags = [
+            'caption',
+            'colgroup',
+            'dd',
+            'dt',
+            'li',
+            'optgroup',
+            'option',
+            'p',
+            'rb',
+            'rp',
+            'rt',
+            'rtc',
+            'tboday',
+            'td',
+            'tfoot',
+            'th',
+            'thead',
+            'tr',
+        ];
     }
 
     /**
@@ -26,6 +64,26 @@ class DomBuilder
     public function getDocumentNode()
     {
         return $this->stackOfOpenElements[0];
+    }
+
+    /**
+     * Returns whether frameset elements may be pushed onto the stack right now.
+     *
+     * @return @boolean
+     */
+    public function getFramesetOkayFlag()
+    {
+        return $this->framesetOkayFlag;
+    }
+
+    /**
+     * Set the frameset okay flag.
+     *
+     * @param boolean $framesetOkayFlag
+     */
+    public function setFramesetOkayFlag($framesetOkayFlag)
+    {
+        $this->framesetOkayFlag = $framesetOkayFlag;
     }
 
     /**
@@ -44,6 +102,16 @@ class DomBuilder
     public function getCurrentNode()
     {
         return $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1];
+    }
+
+    /**
+     * Returns the list of active formatting elements.
+     *
+     * @return ElementNode[]
+     */
+    public function getListOfActiveFormattingElements()
+    {
+        return $this->listOfActiveFormattingElements;
     }
 
     /**
@@ -84,8 +152,10 @@ class DomBuilder
     {
         // Do not pop document node off of stack of open elements.
         if (count($this->stackOfOpenElements) > 1) {
-            array_pop($this->stackOfOpenElements);
+            return array_pop($this->stackOfOpenElements);
         }
+
+        return null;
     }
 
     /**
@@ -106,5 +176,43 @@ class DomBuilder
         }
 
         $this->getCurrentNode()->getLastChild()->appendToData($character);
+    }
+
+    /**
+     * Adds a marker to the list of active formatting elements.
+     */
+    public function pushMarkerOntoListOfActiveFormattingElements()
+    {
+        $this->listOfActiveFormattingElements[] = new ActiveFormattingMarker();
+    }
+
+    /**
+     * Adds an element onto the list of active formatting elements.
+     *
+     * @param ElementNode $element
+     */
+    public function pushElementOntoListOfActiveFormattingElements(ElementNode $element)
+    {
+        $this->listOfActiveFormattingElements[] = $element;
+    }
+
+    /**
+     * Generate end tags for certain elements.
+     */
+    public function generateImpliedEndTagsThoroughly()
+    {
+        while (in_array($this->getCurrentNode()->getName(), $this->tagsWithImpliedEndTags)) {
+            $this->popLastElementOfStackOfOpenElements();
+        }
+    }
+
+    /**
+     * Clears the list of active formating elements until it hits a marker.
+     */
+    public function clearListOfActiveFormattingElementsToNextMarker()
+    {
+        while (!(array_pop($this->listOfActiveFormattingElements) instanceof ActiveFormattingMarker)) { // phpcs:ignore
+            // The condition does the job
+        }
     }
 }

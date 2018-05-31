@@ -11,6 +11,7 @@ use HtmlParser\Tokenizer\Tokens\EndTagToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use HtmlParser\TreeConstructor\InsertionModes\AfterHeadInsertionMode;
 use HtmlParser\TreeConstructor\InsertionModes\InHeadInsertionMode;
+use HtmlParser\TreeConstructor\InsertionModes\InTemplateInsertionMode;
 use HtmlParser\TreeConstructor\DomBuilder;
 use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\TreeConstructor;
@@ -203,5 +204,64 @@ class InHeadInsertionModeTest extends TestCase
             $domBuilder->getCurrentNode()->getLastChild()
         );
         $this->assertEquals('a', $domBuilder->getCurrentNode()->getLastChild()->getData());
+    }
+
+    public function testTemplateElement()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $templateTagToken = new StartTagToken();
+        $templateTagToken->appendCharacterToName('template');
+
+        $inHeadInsertionMode->processToken($templateTagToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('template', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(1, $domBuilder->getListOfActiveFormattingElements());
+        $this->assertInstanceOf(
+            'HtmlParser\TreeConstructor\DomBuilder\ActiveFormattingMarker',
+            $domBuilder->getListOfActiveFormattingElements()[0]
+        );
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\InTemplateInsertionMode', $treeConstructor->getInsertionMode());
+        $this->assertCount(1, $treeConstructor->getStackOfTemplateInsertionModes());
+        $this->assertInstanceOf(
+            'HtmlParser\TreeConstructor\InsertionModes\InTemplateInsertionMode',
+            $treeConstructor->getStackOfTemplateInsertionModes()[0]
+        );
+    }
+
+    public function testTemplateEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $elementFactory = new ElementFactory();
+        $inHeadInsertionMode = new InHeadInsertionMode();
+
+        $treeConstructor->addInsertionModeToStackOfTemplateInsertionModes(new InTemplateInsertionMode());
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('template'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('li'));
+
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('i'));
+        $domBuilder->pushMarkerOntoListOfActiveFormattingElements();
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('i'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('b'));
+
+        $templateTagToken = new EndTagToken();
+        $templateTagToken->appendCharacterToName('template');
+
+        $inHeadInsertionMode->processToken($templateTagToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(3, $domBuilder->getStackOfOpenElements());
+        $this->assertCount(1, $domBuilder->getListOfActiveFormattingElements());
+        $this->assertCount(0, $treeConstructor->getStackOfTemplateInsertionModes());
+        $this->assertInstanceOf(
+            'HtmlParser\TreeConstructor\InsertionModes\InHeadInsertionMode',
+            $treeConstructor->getInsertionMode()
+        );
     }
 }

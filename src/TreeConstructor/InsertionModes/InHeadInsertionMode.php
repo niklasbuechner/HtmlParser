@@ -100,6 +100,13 @@ class InHeadInsertionMode implements InsertionMode
             $treeConstructor->setInsertionMode(new TextInsertionMode());
         } elseif ($token->getName() === 'html') {
             $inBodyInsertionMode = new InBodyInsertionMode();
+        } elseif ($token->getName() === 'template') {
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $domBuilder->pushMarkerOntoListOfActiveFormattingElements();
+            $domBuilder->setFramesetOkayFlag(false);
+
+            $treeConstructor->setInsertionMode(new InTemplateInsertionMode());
+            $treeConstructor->addInsertionModeToStackOfTemplateInsertionModes(new InTemplateInsertionMode());
         } else {
             $this->processUnexpectedToken($token, $treeConstructor, $elementFactory, $domBuilder);
         }
@@ -120,6 +127,16 @@ class InHeadInsertionMode implements InsertionMode
             $treeConstructor->setInsertionMode(new AfterHeadInsertionMode());
         } elseif (in_array($token->getName(), $this->acceptedEndTags)) {
             $this->processUnexpectedToken($token, $treeConstructor, $elementFactory, $domBuilder);
+        } elseif ($token->getName() === 'template') {
+            $domBuilder->generateImpliedEndTagsThoroughly();
+
+            while (!($domBuilder->popLastElementOfStackOfOpenElements()->getName() === 'template')) { // phpcs:ignore
+                // The condition does the job.
+            }
+
+            $domBuilder->clearListOfActiveFormattingElementsToNextMarker();
+            $treeConstructor->popCurrentTemplateInsertionMode();
+            $treeConstructor->resetInsertionMode();
         }
     }
 
