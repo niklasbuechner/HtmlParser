@@ -1,6 +1,7 @@
 <?php
 namespace HtmlParser\Tests\TreeConstructor;
 
+use HtmlParser\Tests\TestResources\TestDomBuilderFactory;
 use HtmlParser\TreeConstructor\DomBuilder;
 use HtmlParser\TreeConstructor\ElementFactory;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
@@ -114,5 +115,28 @@ class DomBuilderTest extends TestCase
         $domBuilder->clearListOfActiveFormattingElementsToNextMarker();
 
         $this->assertCount(0, $domBuilder->getListOfActiveFormattingElements());
+    }
+
+    public function testProcessingAsHead()
+    {
+        $elementFactory = new ElementFactory();
+
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithHeadElement();
+        $domBuilder->popLastElementOfStackOfOpenElements();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('body'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('div'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('h1'));
+
+        $domBuilder->pushHeadToStackOfOpenElements();
+
+        $this->assertEquals($domBuilder->getCurrentNode(), $domBuilder->getHeadPointer());
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('link'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('meta'));
+
+        $domBuilder->removeHeadFromStackOfOpenElements();
+
+        $this->assertCount(5, $domBuilder->getStackOfOpenElements());
     }
 }

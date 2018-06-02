@@ -43,11 +43,13 @@ class BeforeHeadInsertionMode implements InsertionMode
             return;
         } elseif ($token instanceof StartTagToken && $token->getName() === 'head') {
             $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $domBuilder->setHeadPointerToCurrentNode();
             $treeConstructor->setInsertionMode(new InHeadInsertionMode());
         } elseif ($token instanceof EndTagToken && !in_array($token->getName(), $this->acceptableEndTagNames)) {
             return;
         } else {
             $domBuilder->insertNode($elementFactory->createElementFromTagName('head'));
+            $domBuilder->setHeadPointerToCurrentNode();
             $treeConstructor->setInsertionMode(new InHeadInsertionMode());
             $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor, $elementFactory, $domBuilder);
         }

@@ -1,6 +1,7 @@
 <?php
 namespace HtmlParser\TreeConstructor;
 
+use Exception;
 use HtmlParser\TreeConstructor\DomBuilder\ActiveFormattingMarker;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
 use HtmlParser\TreeConstructor\Nodes\DocumentNode;
@@ -10,6 +11,16 @@ use HtmlParser\TreeConstructor\Nodes\TextNode;
 class DomBuilder
 {
     /**
+     * @var ElementNode
+     */
+    private $headPointer;
+
+    /**
+     * @var boolean
+     */
+    private $framesetOkayFlag;
+
+    /**
      * @var ElementNode[]
      */
     private $listOfActiveFormattingElements;
@@ -18,11 +29,6 @@ class DomBuilder
      * @var ElementNode[]
      */
     private $stackOfOpenElements;
-
-    /**
-     * @var boolean
-     */
-    private $framesetOkayFlag;
 
     /**
      * @var string[]
@@ -87,6 +93,44 @@ class DomBuilder
     }
 
     /**
+     * Set the head pointer to the current element.
+     */
+    public function setHeadPointerToCurrentNode()
+    {
+        if ($this->getCurrentNode()->getName() !== 'head') {
+            throw new Exception('Can not set the current element as head pointer. It is not a `head` element!');
+        }
+
+        $this->headPointer = $this->getCurrentNode();
+    }
+
+    /**
+     * Sets the head element to be the current node
+     */
+    public function pushHeadToStackOfOpenElements()
+    {
+        $this->addElementToStackOfOpenElements($this->getHeadPointer());
+    }
+
+    /**
+     * Removes the head element from the stack of open elements.
+     */
+    public function removeHeadFromStackOfOpenElements()
+    {
+        while ($this->popLastElementOfStackOfOpenElements()->getName() !== 'head') { // phpcs:ignore
+            // The condition does the work.
+        }
+    }
+
+    /**
+     * @return ElementNode
+     */
+    public function getHeadPointer()
+    {
+        return $this->headPointer;
+    }
+
+    /**
      * @return Node[]
      */
     public function getStackOfOpenElements()
@@ -140,7 +184,7 @@ class DomBuilder
      *
      * @param ElementNode $node
      */
-    public function addElementToStackOfOpenElements(ElementNode $node)
+    private function addElementToStackOfOpenElements(ElementNode $node)
     {
         $this->stackOfOpenElements[] = $node;
     }

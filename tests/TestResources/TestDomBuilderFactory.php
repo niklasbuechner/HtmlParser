@@ -18,6 +18,7 @@ class TestDomBuilderFactory
     {
         $domBuilder = self::getDomBuilderWithHtmlElement();
         $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('head'));
+        $domBuilder->setHeadPointerToCurrentNode();
 
         return $domBuilder;
     }

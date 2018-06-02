@@ -71,6 +71,7 @@ class BeforeHeadInsertionModeTest extends TestCase
         $this->assertFalse($treeConstructor->getInsertionMode() instanceof BeforeHeadInsertionMode);
         $this->assertCount(1, $nodes);
         $this->assertEquals('head', $nodes[0]->getName());
+        $this->assertNotNull($domBuilder->getHeadPointer());
     }
 
     // public function testHtmlTag()
@@ -122,6 +123,7 @@ class BeforeHeadInsertionModeTest extends TestCase
         $this->assertFalse($treeConstructor->getInsertionMode() instanceof BeforeHeadInsertionMode);
         $this->assertCount(1, $domBuilder->getDocumentNode()->getChildren()[0]->getChildren());
         $this->assertEquals('head', $domBuilder->getCurrentNode()->getName());
+        $this->assertNotNull($domBuilder->getHeadPointer());
     }
 
     public function testEndTagToken()

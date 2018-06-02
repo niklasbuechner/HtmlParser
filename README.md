@@ -7,3 +7,4 @@ Assumptions:
 
 Further information about parsing:
 - The html is parsed as if scripting was enabled.
+- The parser always outputs a complete html tree, even when parsing only a fragment.
