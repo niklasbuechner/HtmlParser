@@ -22,4 +22,13 @@ class TestDomBuilderFactory
 
         return $domBuilder;
     }
+
+    public static function getDomBuilderWithBodyElement()
+    {
+        $domBuilder = self::getDomBuilderWithHeadElement();
+        $domBuilder->popLastElementOfStackOfOpenElements();
+        $domBuilder->insertNode((new ElementFactory())->createElementFromTagName('body'));
+
+        return $domBuilder;
+    }
 }

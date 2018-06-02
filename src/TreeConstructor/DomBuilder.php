@@ -259,4 +259,33 @@ class DomBuilder
             // The condition does the job
         }
     }
+
+    /**
+     * Transfers all attributes of one elemnt onto another.
+     *
+     * @param ElementNode|Token $sourceNode
+     * @param ElementNode|Token $destinationNode
+     */
+    public function transferAttributes($sourceNode, $destinationNode)
+    {
+        foreach ($sourceNode->getAttributes() as $attribute) {
+            $destinationNode->addAttribute($attribute);
+        }
+    }
+
+    /**
+     * Checks if a tag with given tag name exists on the stack of open elements.
+     */
+    public function containsStackOfOpenElements($tagName)
+    {
+        $stackOfOpenElements = array_reverse($this->stackOfOpenElements);
+
+        foreach ($stackOfOpenElements as $node) {
+            if ($node instanceof ElementNode && $node->getName() === $tagName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

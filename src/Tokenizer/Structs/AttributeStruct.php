@@ -14,6 +14,16 @@ class AttributeStruct
     private $value;
 
     /**
+     * @param string|null $name
+     * @param string|null $value
+     */
+    public function __construct($name = null, $value = null)
+    {
+        $this->name = $name;
+        $this->value = $value;
+    }
+
+    /**
      * Appends a character to the current attribute name.
      */
     public function appendCharacterToAttributeName($character)

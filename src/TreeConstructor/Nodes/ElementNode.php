@@ -1,6 +1,8 @@
 <?php
 namespace HtmlParser\TreeConstructor\Nodes;
 
+use HtmlParser\Tokenizer\Structs\AttributeStruct;
+
 class ElementNode
 {
     /**
@@ -49,6 +51,13 @@ class ElementNode
     public function getAttributes()
     {
         return $this->attributes;
+    }
+
+    public function addAttribute(AttributeStruct $attribute)
+    {
+        if (!isset($this->attributes[$attribute->getName()])) {
+            $this->attributes[$attribute->getName()] = $attribute;
+        }
     }
 
     /**
