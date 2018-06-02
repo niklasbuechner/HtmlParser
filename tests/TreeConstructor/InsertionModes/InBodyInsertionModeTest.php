@@ -6,6 +6,7 @@ use HtmlParser\Tokenizer\Structs\AttributeStruct;
 use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
 use HtmlParser\Tokenizer\Tokens\DoctypeToken;
+use HtmlParser\Tokenizer\Tokens\EndOfFileToken;
 use HtmlParser\Tokenizer\Tokens\EndTagToken;
 use HtmlParser\Tokenizer\Tokens\StartTagToken;
 use HtmlParser\TreeConstructor\InsertionModes\InBodyInsertionMode;
@@ -130,5 +131,117 @@ class InBodyInsertionModeTest extends TestCase
         $inBodyInsertionMode->processToken($bodyTag, $treeConstructor, $elementFactory, $domBuilder);
 
         $this->assertCount(1, $domBuilder->getStackOfOpenElements()[2]->getAttributes());
+    }
+
+    public function testFramesetTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $framesetToken = new StartTagToken();
+        $framesetToken->appendCharacterToName('frameset');
+
+        $inBodyInsertionMode->processToken($framesetToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('frameset', $domBuilder->getStackOfOpenElements()[2]->getName());
+    }
+
+    public function testIllegalFrameset()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->setFramesetOkayFlag(false);
+
+        $framesetToken = new StartTagToken();
+        $framesetToken->appendCharacterToName('frameset');
+
+        $inBodyInsertionMode->processToken($framesetToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('body', $domBuilder->getStackOfOpenElements()[2]->getName());
+    }
+
+    public function testEndOfFileToken()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $eofToken = new EndOfFileToken();
+
+        $inBodyInsertionMode->processToken($eofToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('body', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testBodyTagEnd()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $bodyEndTag = new EndTagToken();
+        $bodyEndTag->appendCharacterToName('body');
+
+        $inBodyInsertionMode->processToken($bodyEndTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\AfterBodyInsertionMode', $treeConstructor->getInsertionMode());
+    }
+
+    public function testHtmlTagEnd()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $htmlEndTag = new EndTagToken();
+        $htmlEndTag->appendCharacterToName('html');
+
+        $inBodyInsertionMode->processToken($htmlEndTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertInstanceOf('HtmlParser\TreeConstructor\InsertionModes\AfterBodyInsertionMode', $treeConstructor->getInsertionMode());
+    }
+
+    public function testElementsBehavingLikeAddress()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+
+        $navToken = new StartTagToken();
+        $navToken->appendCharacterToName('nav');
+
+        $inBodyInsertionMode->processToken($navToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('nav', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testHeading()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+
+        $headingToken = new StartTagToken();
+        $headingToken->appendCharacterToName('h3');
+
+        $inBodyInsertionMode->processToken($headingToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('h3', $domBuilder->getCurrentNode()->getName());
     }
 }

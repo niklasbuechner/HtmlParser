@@ -33,14 +33,31 @@ class DomBuilder
     /**
      * @var string[]
      */
-    private $tagsWithImpliedEndTags;
+    private $tagsToGenerateEndTags;
+
+    /**
+     * @var string[]
+     */
+    private $tagsToGenerateEndTagsThoroughly;
 
     public function __construct()
     {
         $this->stackOfOpenElements = [new DocumentNode()];
         $this->listOfActiveFormattingElements = [];
         $this->framesetOkayFlag = true;
-        $this->tagsWithImpliedEndTags = [
+        $this->tagsToGenerateEndTags = [
+            'dd',
+            'dt',
+            'li',
+            'optgroup',
+            'option',
+            'p',
+            'rb',
+            'rp',
+            'rt',
+            'rtc',
+        ];
+        $this->tagsToGenerateEndTagsThoroughly = [
             'caption',
             'colgroup',
             'dd',
@@ -242,10 +259,24 @@ class DomBuilder
 
     /**
      * Generate end tags for certain elements.
+     *
+     * @param string[] $blacklist
+     */
+    public function generateImpliedEndTags($blacklist)
+    {
+        $tagsToGenerateEndTagsFor = array_diff($this->tagsToGenerateEndTags, $blacklist);
+
+        while (in_array($this->getCurrentNode()->getName(), $tagsToGenerateEndTagsFor)) {
+            $this->popLastElementOfStackOfOpenElements();
+        }
+    }
+
+    /**
+     * Generate end tags for certain elements.
      */
     public function generateImpliedEndTagsThoroughly()
     {
-        while (in_array($this->getCurrentNode()->getName(), $this->tagsWithImpliedEndTags)) {
+        while (in_array($this->getCurrentNode()->getName(), $this->tagsToGenerateEndTagsThoroughly)) {
             $this->popLastElementOfStackOfOpenElements();
         }
     }
@@ -287,5 +318,42 @@ class DomBuilder
         }
 
         return false;
+    }
+
+    /**
+     * Checks if an element exists in a specific scope.
+     *
+     * @param string $tagName
+     * @param string[] $unwantedTagNames
+     */
+    private function stackOfOpenElementsContainsElementInScope($tagName, $unwantedTagNames)
+    {
+        $stackOfOpenElements = array_reverse($this->getStackOfOpenElements());
+
+        foreach ($stackOfOpenElements as $elementInStack) {
+            if ($elementInStack->getName() === $tagName) {
+                return true;
+            }
+
+            if (in_array($elementInStack->getName(), $unwantedTagNames)) {
+                return false;
+            }
+        }
+    }
+
+    public function stackOfOpenElementsContainsElementInButtonScope($tagName)
+    {
+        return $this->stackOfOpenElementsContainsElementInScope($tagName, [
+            'applet',
+            'caption',
+            'html',
+            'table',
+            'td',
+            'th',
+            'marquee',
+            'object',
+            'template',
+            'button',
+        ]);
     }
 }

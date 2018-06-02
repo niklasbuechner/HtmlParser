@@ -87,4 +87,21 @@ class ElementNode
 
         return $this->children[count($this->children) - 1];
     }
+
+    /**
+     * Removes a child element.
+     *
+     * @param ElementNode $child
+     */
+    public function removeChild(ElementNode $child)
+    {
+        foreach ($this->children as $index => $existingChild) {
+            if ($existingChild === $child) {
+                unset($this->children[$index]);
+                $this->children = array_values($this->children);
+
+                return;
+            }
+        }
+    }
 }
