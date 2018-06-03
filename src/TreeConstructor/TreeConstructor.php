@@ -17,6 +17,21 @@ use HtmlParser\TreeConstructor\Tokenizer;
 class TreeConstructor implements TokenListener
 {
     /**
+     * @var DomBuilder
+     */
+    private $domBuilder;
+
+    /**
+     * @var ElementFactory
+     */
+    private $elementFactory;
+
+    /**
+     * @var string
+     */
+    private $ignoreNewLineToken;
+
+    /**
      * @var InsertionMode
      */
     private $insertionMode;
@@ -36,8 +51,10 @@ class TreeConstructor implements TokenListener
      */
     private $tokenizer;
 
-    public function __construct()
+    public function __construct($domBuilder = null)
     {
+        $this->domBuilder = $domBuilder ?: new DomBuilder();
+        $this->elementFactory = new ElementFactory();
         $this->insertionMode = new InitialInsertionMode();
         $this->stackOfOpenElements = [];
         $this->stackOfTemplateInsertionModes = [];
@@ -48,7 +65,15 @@ class TreeConstructor implements TokenListener
      */
     public function emitToken(Token $token)
     {
-        $this->insertionMode->processToken($token, $this);
+        if ($this->ignoreNewLineToken) {
+            $this->ignoreNewLineToken = false;
+
+            if ($token instanceof CharacterToken && $token->getCharacter() === '\n') {
+                return;
+            }
+        }
+
+        $this->insertionMode->processToken($token, $this, $this->elementFactory, $this->domBuilder);
     }
 
     /**
@@ -101,6 +126,15 @@ class TreeConstructor implements TokenListener
     public function getTokenizer()
     {
         return $this->tokenizer;
+    }
+
+    /**
+     * Prevents the next token from being processed, if its a character token
+     * with a line break.
+     */
+    public function skipCharacterLineBreakToken()
+    {
+        $this->ignoreNewLineToken = true;
     }
 
     /**

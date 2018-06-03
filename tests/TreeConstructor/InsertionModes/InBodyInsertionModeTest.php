@@ -244,4 +244,75 @@ class InBodyInsertionModeTest extends TestCase
         $this->assertCount(4, $domBuilder->getStackOfOpenElements());
         $this->assertEquals('h3', $domBuilder->getCurrentNode()->getName());
     }
+
+    public function testPreTag()
+    {
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $treeConstructor = new TreeConstructor($domBuilder);
+        $treeConstructor->setInsertionMode(new InBodyInsertionMode());
+
+        $preTag = new StartTagToken();
+        $preTag->appendCharacterToName('pre');
+
+        $treeConstructor->emitToken($preTag);
+        $treeConstructor->emitToken(new CharacterToken('\n'));
+
+        $this->assertEquals('pre', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(0, $domBuilder->getCurrentNode()->getChildren());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
+
+    public function testFormTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $formToken = new StartTagToken();
+        $formToken->appendCharacterToName('form');
+
+        $inBodyInsertionMode->processToken($formToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertNotNull($domBuilder->getFormPointer());
+        $this->assertEquals('form', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testFormTagInTemplate()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('template'));
+
+        $formToken = new StartTagToken();
+        $formToken->appendCharacterToName('form');
+
+        $inBodyInsertionMode->processToken($formToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertNull($domBuilder->getFormPointer());
+        $this->assertEquals('form', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testFormTagToBeIgnored()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('template'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('form'));
+        $domBuilder->setFormPointerToCurrentNode();
+        $domBuilder->popLastElementOfStackOfOpenElements();
+
+        $formToken = new StartTagToken();
+        $formToken->appendCharacterToName('form');
+
+        $inBodyInsertionMode->processToken($formToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('template', $domBuilder->getCurrentNode()->getName());
+    }
 }

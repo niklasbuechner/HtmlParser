@@ -13,12 +13,17 @@ class DomBuilder
     /**
      * @var ElementNode
      */
-    private $headPointer;
+    private $formPointer;
 
     /**
      * @var boolean
      */
     private $framesetOkayFlag;
+
+    /**
+     * @var ElementNode
+     */
+    private $headPointer;
 
     /**
      * @var ElementNode[]
@@ -110,18 +115,6 @@ class DomBuilder
     }
 
     /**
-     * Set the head pointer to the current element.
-     */
-    public function setHeadPointerToCurrentNode()
-    {
-        if ($this->getCurrentNode()->getName() !== 'head') {
-            throw new Exception('Can not set the current element as head pointer. It is not a `head` element!');
-        }
-
-        $this->headPointer = $this->getCurrentNode();
-    }
-
-    /**
      * Sets the head element to be the current node
      */
     public function pushHeadToStackOfOpenElements()
@@ -140,11 +133,43 @@ class DomBuilder
     }
 
     /**
+     * Set the head pointer to the current element.
+     */
+    public function setHeadPointerToCurrentNode()
+    {
+        if ($this->getCurrentNode()->getName() !== 'head') {
+            throw new Exception('Can not set the current element as head pointer. It is not a `head` element!');
+        }
+
+        $this->headPointer = $this->getCurrentNode();
+    }
+
+    /**
      * @return ElementNode
      */
     public function getHeadPointer()
     {
         return $this->headPointer;
+    }
+
+    /**
+     * Set the form pointer to the current element.
+     */
+    public function setFormPointerToCurrentNode()
+    {
+        if ($this->getCurrentNode()->getName() !== 'form') {
+            throw new Exception('Can not set the current element as form pointer. It is not a `form` element!');
+        }
+
+        $this->formPointer = $this->getCurrentNode();
+    }
+
+    /**
+     * @return ElementNode
+     */
+    public function getFormPointer()
+    {
+        return $this->formPointer;
     }
 
     /**

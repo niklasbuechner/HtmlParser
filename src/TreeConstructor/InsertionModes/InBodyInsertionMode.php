@@ -128,6 +128,22 @@ class InBodyInsertionMode implements InsertionMode
             }
 
             $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+        } elseif ($token->getName() === 'pre' || $token->getName() === 'listing') {
+            $this->closePInButtonScope($domBuilder);
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $treeConstructor->skipCharacterLineBreakToken();
+            $domBuilder->setFramesetOkayFlag(false);
+        } elseif ($token->getName() === 'form') {
+            if ($domBuilder->getFormPointer() && $domBuilder->containsStackOfOpenElements('template')) {
+                return;
+            }
+
+            $this->closePInButtonScope($domBuilder);
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+
+            if (!$domBuilder->containsStackOfOpenElements('template')) {
+                $domBuilder->setFormPointerToCurrentNode();
+            }
         }
     }
 
