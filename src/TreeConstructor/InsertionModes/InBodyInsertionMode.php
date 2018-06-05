@@ -144,6 +144,30 @@ class InBodyInsertionMode implements InsertionMode
             if (!$domBuilder->containsStackOfOpenElements('template')) {
                 $domBuilder->setFormPointerToCurrentNode();
             }
+        } elseif ($token->getName() === 'li' || $token->getName() === 'dd' || $token->getName() === 'dt') {
+            $domBuilder->setFramesetOkayFlag(false);
+            $node = $domBuilder->getCurrentNode();
+            $loop = true;
+
+            while ($loop) {
+                if ($node->getName() === $token->getName()) {
+                    $domBuilder->generateImpliedEndTags([$token->getName()]);
+                    while ($domBuilder->popLastElementOfStackOfOpenElements()->getName() !== $token->getName()) { // phpcs:ignore
+                        // The condition does the job.
+                    }
+
+                    break;
+                }
+
+                if ($domBuilder->isSpecialTag($node->getName(), ['address', 'div', 'p'])) {
+                    break;
+                }
+
+                $node = $domBuilder->getParentNodeOf($node);
+            }
+
+            $this->closePInButtonScope($domBuilder);
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
         }
     }
 

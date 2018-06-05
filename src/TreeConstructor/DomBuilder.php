@@ -45,6 +45,11 @@ class DomBuilder
      */
     private $tagsToGenerateEndTagsThoroughly;
 
+    /**
+     * @var string[]
+     */
+    private $tagsWithSpecialParsingRules;
+
     public function __construct()
     {
         $this->stackOfOpenElements = [new DocumentNode()];
@@ -81,6 +86,90 @@ class DomBuilder
             'th',
             'thead',
             'tr',
+        ];
+        $this->tagsWithSpecialParsingRules = [
+            'address',
+            'applet',
+            'area',
+            'article',
+            'aside',
+            'base',
+            'basefont',
+            'bgsound',
+            'blockquote',
+            'body',
+            'br',
+            'button',
+            'caption',
+            'center',
+            'col',
+            'colgroup',
+            'dd',
+            'details',
+            'dir',
+            'div',
+            'dl',
+            'dt',
+            'embed',
+            'fieldset',
+            'figcaption',
+            'figure',
+            'footer',
+            'form',
+            'frame',
+            'frameset',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'head',
+            'header',
+            'hgroup',
+            'hr',
+            'html',
+            'iframe',
+            'img',
+            'input',
+            'keygen',
+            'li',
+            'link',
+            'listing',
+            'main',
+            'marquee',
+            'menu',
+            'meta',
+            'nav',
+            'noembed',
+            'noframes',
+            'noscript',
+            'object',
+            'ol',
+            'p',
+            'param',
+            'plaintext',
+            'p',
+            'script',
+            'section',
+            'select',
+            'source',
+            'style',
+            'summary',
+            'table',
+            'tbody',
+            'td',
+            'template',
+            'textarea',
+            'tfoot',
+            'th',
+            'thead',
+            'title',
+            'tr',
+            'track',
+            'ul',
+            'wpr',
+            'xmp',
         ];
     }
 
@@ -188,6 +277,25 @@ class DomBuilder
     public function getCurrentNode()
     {
         return $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1];
+    }
+
+    /**
+     * Returns the node before the given node.
+     *
+     * @param ElementNode[]
+     * @return ElementNode
+     */
+    public function getParentNodeOf($node)
+    {
+        $stackOfOpenElements = array_reverse($this->getStackOfOpenElements());
+
+        foreach ($stackOfOpenElements as $key => $nodeInStack) {
+            if ($nodeInStack === $node) {
+                return $stackOfOpenElements[$key + 1];
+            }
+        }
+
+        throw new Exception('The given element is not in the stack of open elements.');
     }
 
     /**
@@ -350,8 +458,9 @@ class DomBuilder
      *
      * @param string $tagName
      * @param string[] $unwantedTagNames
+     * @return boolean
      */
-    private function stackOfOpenElementsContainsElementInScope($tagName, $unwantedTagNames)
+    public function stackOfOpenElementsContainsElementInScope($tagName, $unwantedTagNames)
     {
         $stackOfOpenElements = array_reverse($this->getStackOfOpenElements());
 
@@ -364,8 +473,16 @@ class DomBuilder
                 return false;
             }
         }
+
+        return false;
     }
 
+    /**
+     * Checks if an element exists in button scope.
+     *
+     * @param string $tagName
+     * @return boolean
+     */
     public function stackOfOpenElementsContainsElementInButtonScope($tagName)
     {
         return $this->stackOfOpenElementsContainsElementInScope($tagName, [
@@ -380,5 +497,19 @@ class DomBuilder
             'template',
             'button',
         ]);
+    }
+
+    /**
+     * Checks if a tag has some kind of special parsing rules associate.
+     *
+     * @param string $tagName
+     * @param string[] $blacklist
+     * @return boolean
+     */
+    public function isSpecialTag($tagName, $blacklist = [])
+    {
+        $specialTags = array_diff($this->tagsWithSpecialParsingRules, $blacklist);
+
+        return in_array($tagName, $specialTags);
     }
 }

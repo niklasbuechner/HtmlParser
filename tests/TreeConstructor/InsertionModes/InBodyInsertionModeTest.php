@@ -315,4 +315,79 @@ class InBodyInsertionModeTest extends TestCase
 
         $this->assertEquals('template', $domBuilder->getCurrentNode()->getName());
     }
+
+    public function testLiElementAndImplicitClosing()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('ul'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('li'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+
+        $liTag = new StartTagToken();
+        $liTag->appendCharacterToName('li');
+
+        $inBodyInsertionMode->processToken($liTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('li', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(5, $domBuilder->getStackOfOpenElements());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
+
+    public function testLiElement()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('ul'));
+
+        $liTag = new StartTagToken();
+        $liTag->appendCharacterToName('li');
+
+        $inBodyInsertionMode->processToken($liTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('li', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(5, $domBuilder->getStackOfOpenElements());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
+
+    public function testDdElement()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $ddTag = new StartTagToken();
+        $ddTag->appendCharacterToName('dd');
+
+        $inBodyInsertionMode->processToken($ddTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('dd', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
+
+    public function testDtElement()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $dtTag = new StartTagToken();
+        $dtTag->appendCharacterToName('dt');
+
+        $inBodyInsertionMode->processToken($dtTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('dt', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace HtmlParser\Tests\TreeConstructor;
 
+use Exception;
 use HtmlParser\Tests\TestResources\TestDomBuilderFactory;
 use HtmlParser\TreeConstructor\DomBuilder;
 use HtmlParser\TreeConstructor\ElementFactory;
@@ -138,5 +139,62 @@ class DomBuilderTest extends TestCase
         $domBuilder->removeHeadFromStackOfOpenElements();
 
         $this->assertCount(5, $domBuilder->getStackOfOpenElements());
+    }
+
+    public function testGetParentNodeOf()
+    {
+        $elementFactory = new ElementFactory();
+
+        $divNode = $elementFactory->createElementFromTagName('div');
+        $pNode = $elementFactory->createElementFromTagName('p');
+        $bNode = $elementFactory->createElementFromTagName('b');
+        $iNode = $elementFactory->createElementFromTagName('i');
+
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $domBuilder->insertNode($divNode);
+        $domBuilder->insertNode($pNode);
+        $domBuilder->insertNode($bNode);
+        $domBuilder->insertNode($iNode);
+
+        $this->assertEquals($bNode, $domBuilder->getParentNodeOf($iNode));
+        $this->assertEquals($pNode, $domBuilder->getParentNodeOf($bNode));
+        $this->assertEquals($divNode, $domBuilder->getParentNodeOf($pNode));
+
+        try {
+            $domBuilder->getParentNodeOf($elementFactory->createElementFromTagName('li'));
+            $this->assertFalse(true);
+        } catch (Exception $exception) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function testSpecialTag()
+    {
+        $domBuilder = new DomBuilder();
+
+        $this->assertTrue($domBuilder->isSpecialTag('p'));
+        $this->assertTrue($domBuilder->isSpecialTag('meta'));
+        $this->assertTrue($domBuilder->isSpecialTag('p', ['meta']));
+
+        $this->assertFalse($domBuilder->isSpecialTag('p', ['p']));
+        $this->assertFalse($domBuilder->isSpecialTag('b'));
+    }
+
+    public function testStackOfOpenElementsContainsElementInScope()
+    {
+        $elementFactory = new ElementFactory();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('div'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('h1'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('i'));
+
+        $this->assertTrue($domBuilder->stackOfOpenElementsContainsElementInScope('i', []));
+        $this->assertTrue($domBuilder->stackOfOpenElementsContainsElementInScope('p', ['div', 'body']));
+
+        $this->assertFalse($domBuilder->stackOfOpenElementsContainsElementInScope('p', ['div', 'body', 'h1']));
+        $this->assertFalse($domBuilder->stackOfOpenElementsContainsElementInScope('b', ['h1']));
     }
 }
