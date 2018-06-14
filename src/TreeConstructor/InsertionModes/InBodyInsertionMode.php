@@ -168,6 +168,22 @@ class InBodyInsertionMode implements InsertionMode
 
             $this->closePInButtonScope($domBuilder);
             $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+        } elseif ($token->getName() === 'plaintext') {
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $treeConstructor->getTokenizer()->switchToPlaintextTokenization();
+        } elseif ($token->getName() === 'button') {
+            if ($domBuilder->stackOfOpenElementsContainsElementInButtonScope('button')) {
+                $domBuilder->generateImpliedEndTags();
+
+                while ($domBuilder->popLastElementOfStackOfOpenElements()->getName() !== 'button') { // phpcs:ignore
+                    // The condition does the work.
+                }
+
+                $domBuilder->reconstructActiveFormattingList();
+            }
+
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $domBuilder->setFramesetOkayFlag(false);
         }
     }
 

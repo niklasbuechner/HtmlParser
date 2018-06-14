@@ -197,4 +197,25 @@ class DomBuilderTest extends TestCase
         $this->assertFalse($domBuilder->stackOfOpenElementsContainsElementInScope('p', ['div', 'body', 'h1']));
         $this->assertFalse($domBuilder->stackOfOpenElementsContainsElementInScope('b', ['h1']));
     }
+
+    public function testReconstructActiveFormattingList()
+    {
+        $elementFactory = new ElementFactory();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('i'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('u'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('strong'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($elementFactory->createElementFromTagName('hi'));
+
+        $domBuilder->reconstructActiveFormattingList();
+
+        $this->assertCount(8, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('hi', $domBuilder->getStackOfOpenElements()[7]->getName());
+        $this->assertEquals('strong', $domBuilder->getStackOfOpenElements()[6]->getName());
+        $this->assertEquals('u', $domBuilder->getStackOfOpenElements()[5]->getName());
+        $this->assertEquals('i', $domBuilder->getStackOfOpenElements()[4]->getName());
+        $this->assertEquals('b', $domBuilder->getStackOfOpenElements()[3]->getName());
+    }
 }

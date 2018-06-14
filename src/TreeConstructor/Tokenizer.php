@@ -17,4 +17,9 @@ interface Tokenizer
      * Switch the tokenizer to use script tokenization.
      */
     public function switchToScriptDataTokenization();
+
+    /**
+     * Switch the tokenizer to use plaintext tokenization.
+     */
+    public function switchToPlainTextTokenization();
 }

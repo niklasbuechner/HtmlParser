@@ -2,6 +2,7 @@
 namespace HtmlParser\Tests\TreeConstructor\InsertionModes;
 
 use HtmlParser\Tests\TestResources\TestDomBuilderFactory;
+use HtmlParser\Tests\TestResources\TestTreeConstructionTokenizer;
 use HtmlParser\Tokenizer\Structs\AttributeStruct;
 use HtmlParser\Tokenizer\Tokens\CharacterToken;
 use HtmlParser\Tokenizer\Tokens\CommentToken;
@@ -387,6 +388,59 @@ class InBodyInsertionModeTest extends TestCase
         $inBodyInsertionMode->processToken($dtTag, $treeConstructor, $elementFactory, $domBuilder);
 
         $this->assertEquals('dt', $domBuilder->getCurrentNode()->getName());
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
+
+    public function testPlaintext()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $treeConstructor->setTokenizer(new TestTreeConstructionTokenizer());
+
+        $plainTextTag = new StartTagToken();
+        $plainTextTag->appendCharacterToName('plaintext');
+
+        $inBodyInsertionMode->processToken($plainTextTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('plaintext', $domBuilder->getCurrentNode()->getName());
+        $this->assertTrue($treeConstructor->getTokenizer()->isInPlaintextState());
+    }
+
+    public function testButtonTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $buttonToken = new StartTagToken();
+        $buttonToken->appendCharacterToName('button');
+
+        $inBodyInsertionMode->processToken($buttonToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('button', $domBuilder->getCurrentNode()->getName());
+        $this->assertFalse($domBuilder->getFramesetOkayFlag());
+    }
+
+    public function testSecondButtonTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('button'));
+
+        $buttonToken = new StartTagToken();
+        $buttonToken->appendCharacterToName('button');
+
+        $inBodyInsertionMode->processToken($buttonToken, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertEquals('button', $domBuilder->getCurrentNode()->getName());
         $this->assertCount(4, $domBuilder->getStackOfOpenElements());
         $this->assertFalse($domBuilder->getFramesetOkayFlag());
     }

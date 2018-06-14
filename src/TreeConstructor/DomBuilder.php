@@ -391,11 +391,98 @@ class DomBuilder
     }
 
     /**
+     * Reconstructs the list of active formatting elements.
+     */
+    public function reconstructActiveFormattingList()
+    {
+        if (count($this->listOfActiveFormattingElements) === 0) {
+            return;
+        }
+
+        $reversetActiveFormattingList = array_reverse($this->listOfActiveFormattingElements);
+        $entry = $reversetActiveFormattingList[0];
+
+        if ($entry instanceof ActiveFormattingMarker || $this->containsStackOfOpenElements($entry->getName())) {
+            return;
+        }
+
+        $this->handlePossibleLastElement($entry, $reversetActiveFormattingList, 0);
+    }
+
+    /**
+     * Checks if the element is the last element in the list of active formatting elements
+     * and handles its processing.
+     *
+     * @param ElementNode $entry
+     * @param ElementNode[] $reverseActiveFormattingList
+     * @param int $lastIndex
+     */
+    private function handlePossibleLastElement($entry, $reversetActiveFormattingList, $lastIndex)
+    {
+        if (count($reversetActiveFormattingList) === $lastIndex + 1) {
+            $this->reinsertElement($entry, $reversetActiveFormattingList, $lastIndex);
+        } else {
+            $this->advanceOneElement($reversetActiveFormattingList, $lastIndex);
+        }
+    }
+
+    /**
+     * Walks back one element in the list of active formatting elements in order to find the end
+     * of the list or a marker to start reopening the not yet closed tags.
+     *
+     * @param ElementNode[] $reverseActiveFormattingList
+     * @param int $lastIndex
+     */
+    private function advanceOneElement($reversetActiveFormattingList, $lastIndex)
+    {
+        $lastIndex += 1;
+        $entry = $reversetActiveFormattingList[$lastIndex];
+
+        if ($entry instanceof ActiveFormattingMarker || $this->containsStackOfOpenElements($entry->getName())) {
+            $lastIndex -= 1;
+            $entry = $reversetActiveFormattingList[$lastIndex];
+            $this->reinsertElement($entry, $reversetActiveFormattingList, $lastIndex);
+        } else {
+            $this->handlePossibleLastElement($entry, $reversetActiveFormattingList, $lastIndex);
+        }
+    }
+
+    /**
+     * Reinserts an active formatting element into the stack of open elements and recursivly reinserts
+     * all elements after that.
+     *
+     * @param ElementNode $entry
+     * @param ElementNode[] $reverseActiveFormattingList
+     * @param int $lastIndex
+     */
+    private function reinsertElement($entry, $reversetActiveFormattingList, $lastIndex)
+    {
+        $newEntry = clone $entry;
+        $this->insertNode($newEntry);
+        $reversetActiveFormattingList[$lastIndex] = $newEntry;
+
+        if ($lastIndex !== 0) {
+            $lastIndex -= 1;
+            $this->reinsertElement($reversetActiveFormattingList[$lastIndex], $reversetActiveFormattingList, $lastIndex);
+        }
+    }
+
+    /**
+     * Clears the list of active formating elements until it hits a marker.
+     */
+    public function clearListOfActiveFormattingElementsToNextMarker()
+    {
+        while (!(array_pop($this->listOfActiveFormattingElements) instanceof ActiveFormattingMarker)) { // phpcs:ignore
+            // The condition does the job
+        }
+    }
+
+    /**
      * Generate end tags for certain elements.
      *
      * @param string[] $blacklist
      */
-    public function generateImpliedEndTags($blacklist)
+    public function generateImpliedEndTags($blacklist = [])
     {
         $tagsToGenerateEndTagsFor = array_diff($this->tagsToGenerateEndTags, $blacklist);
 
@@ -411,16 +498,6 @@ class DomBuilder
     {
         while (in_array($this->getCurrentNode()->getName(), $this->tagsToGenerateEndTagsThoroughly)) {
             $this->popLastElementOfStackOfOpenElements();
-        }
-    }
-
-    /**
-     * Clears the list of active formating elements until it hits a marker.
-     */
-    public function clearListOfActiveFormattingElementsToNextMarker()
-    {
-        while (!(array_pop($this->listOfActiveFormattingElements) instanceof ActiveFormattingMarker)) { // phpcs:ignore
-            // The condition does the job
         }
     }
 

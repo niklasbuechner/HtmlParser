@@ -2,6 +2,7 @@
 namespace HtmlParser\Tests\TestResources;
 
 use HtmlParser\Tokenizer\AbstractTokenizer;
+use HtmlParser\Tokenizer\States\PlainTextState;
 use HtmlParser\Tokenizer\States\RcdataState;
 use HtmlParser\Tokenizer\States\RawTextState;
 use HtmlParser\Tokenizer\States\ScriptDataState;
@@ -42,6 +43,14 @@ class TestTreeConstructionTokenizer extends AbstractTokenizer implements Tokeniz
     }
 
     /**
+     * @inheritdoc
+     */
+    public function switchToPlainTextTokenization()
+    {
+        $this->setState(new PlainTextState());
+    }
+
+    /**
      * Checks if the state is in the rcdata state.
      *
      * @return bool
@@ -69,5 +78,10 @@ class TestTreeConstructionTokenizer extends AbstractTokenizer implements Tokeniz
     public function isInScriptDataState()
     {
         return $this->getState() instanceof ScriptDataState;
+    }
+
+    public function isInPlaintextState()
+    {
+        return $this->getState() instanceof PlainTextState;
     }
 }
