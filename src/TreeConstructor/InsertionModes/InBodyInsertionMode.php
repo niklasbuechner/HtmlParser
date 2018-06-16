@@ -15,7 +15,12 @@ class InBodyInsertionMode implements InsertionMode
     /**
      * @var string[]
      */
-    private $tagsBehavingLikeAddress;
+    private $endTagsBehavingLikeAddress;
+
+    /**
+     * @var string[]
+     */
+    private $startTagsBehavingLikeAddress;
 
     /**
      * @var string[]
@@ -24,7 +29,43 @@ class InBodyInsertionMode implements InsertionMode
 
     public function __construct()
     {
-        $this->tagsBehavingLikeAddress = [
+        $this->endTagsBehavingLikeAddress = [
+            'address',
+            'article',
+            'aside',
+            'blockquote',
+            'center',
+            'dd',
+            'details',
+            'dialog',
+            'dir',
+            'div',
+            'dl',
+            'dt',
+            'fieldset',
+            'figcaption',
+            'figure',
+            'footer',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'header',
+            'hgroup',
+            'li',
+            'listing',
+            'main',
+            'menu',
+            'nav',
+            'ol',
+            'pre',
+            'section',
+            'summary',
+            'ul',
+        ];
+        $this->startTagsBehavingLikeAddress = [
             'address',
             'article',
             'aside',
@@ -117,7 +158,7 @@ class InBodyInsertionMode implements InsertionMode
                 }
                 $domBuilder->insertNode($elementFactory->createElementFromToken($token));
             }
-        } elseif (in_array($token->getName(), $this->tagsBehavingLikeAddress)) {
+        } elseif (in_array($token->getName(), $this->startTagsBehavingLikeAddress)) {
             $this->closePInButtonScope($domBuilder);
             $domBuilder->insertNode($elementFactory->createElementFromToken($token));
         } elseif (preg_match('/h[1-6]/', $token->getName())) {
@@ -152,9 +193,7 @@ class InBodyInsertionMode implements InsertionMode
             while ($loop) {
                 if ($node->getName() === $token->getName()) {
                     $domBuilder->generateImpliedEndTags([$token->getName()]);
-                    while ($domBuilder->popLastElementOfStackOfOpenElements()->getName() !== $token->getName()) { // phpcs:ignore
-                        // The condition does the job.
-                    }
+                    $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName($token->getName());
 
                     break;
                 }
@@ -174,11 +213,7 @@ class InBodyInsertionMode implements InsertionMode
         } elseif ($token->getName() === 'button') {
             if ($domBuilder->stackOfOpenElementsContainsElementInButtonScope('button')) {
                 $domBuilder->generateImpliedEndTags();
-
-                while ($domBuilder->popLastElementOfStackOfOpenElements()->getName() !== 'button') { // phpcs:ignore
-                    // The condition does the work.
-                }
-
+                $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName('button');
                 $domBuilder->reconstructActiveFormattingList();
             }
 
@@ -207,6 +242,42 @@ class InBodyInsertionMode implements InsertionMode
             if ($token->getName() === 'html') {
                 $treeConstructor->getInsertionMode()->processToken($token, $treeConstructor, $elementFactory, $domBuilder);
             }
+        } elseif (in_array($token->getName(), $this->endTagsBehavingLikeAddress)) {
+            if (!$domBuilder->containsStackOfOpenElements($token->getName())) {
+                return;
+            }
+
+            $domBuilder->generateImpliedEndTags([$token->getName()]);
+            $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName($token->getName());
+        } elseif ($token->getName() === 'form') {
+            if ($domBuilder->containsStackOfOpenElements('template')) {
+                if (!$domBuilder->containsStackOfOpenElements('form')) {
+                    return;
+                }
+
+                $domBuilder->generateImpliedEndTags();
+                $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName('form');
+
+                $domBuilder->reconstructActiveFormattingList();
+            } else {
+                $formNode = $domBuilder->getFormPointer();
+                $domBuilder->clearFormPointer();
+
+                if (!$formNode) {
+                    return;
+                }
+
+                $domBuilder->generateImpliedEndTags();
+                $domBuilder->popElementsOfStackOfOpenElementsUntilElement($formNode);
+                $domBuilder->reconstructActiveFormattingList();
+            }
+        } elseif ($token->getName() === 'p') {
+            if (!$domBuilder->stackOfOpenElementsContainsElementInButtonScope('p')) {
+                $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+            }
+
+            $domBuilder->generateImpliedEndTags(['p']);
+            $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName('p');
         }
     }
 
@@ -219,10 +290,7 @@ class InBodyInsertionMode implements InsertionMode
     {
         if ($domBuilder->stackOfOpenElementsContainsElementInButtonScope('p')) {
             $domBuilder->generateImpliedEndTags(['p']);
-
-            while ($domBuilder->popLastElementOfStackOfOpenElements()->getName() !== 'p') { // phpcs:ignore
-                // The condition does the job.
-            }
+            $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName('p');
         }
     }
 }

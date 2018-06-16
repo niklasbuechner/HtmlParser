@@ -262,6 +262,14 @@ class DomBuilder
     }
 
     /**
+     * Sets the form pointer to null.
+     */
+    public function clearFormPointer()
+    {
+        $this->formPointer = null;
+    }
+
+    /**
      * @return Node[]
      */
     public function getStackOfOpenElements()
@@ -341,15 +349,43 @@ class DomBuilder
 
     /**
      * Pops the last element of the stack of open elements.
+     *
+     * @return ElementNode
      */
     public function popLastElementOfStackOfOpenElements()
     {
         // Do not pop document node off of stack of open elements.
-        if (count($this->stackOfOpenElements) > 1) {
-            return array_pop($this->stackOfOpenElements);
+        if (count($this->stackOfOpenElements) === 1) {
+            throw new Exception('You can not pop the document node of the stack of open elements.');
         }
 
-        return null;
+        return array_pop($this->stackOfOpenElements);
+    }
+
+    /**
+     * Pops all elements of the stack of open elements until an element with the given name
+     * has been found.
+     *
+     * @param string $name
+     */
+    public function popElementsOfStackOfOpenElementsUntilElementWithName($name)
+    {
+        while ($this->popLastElementOfStackOfOpenElements()->getName() !== $name) { // phpcs:ignore
+            // The condition does the job
+        }
+    }
+
+    /**
+     * Pops all elements of the stack of open elements until an element with the given name
+     * has been found.
+     *
+     * @param ElementNode $element
+     */
+    public function popElementsOfStackOfOpenElementsUntilElement($element)
+    {
+        while ($this->popLastElementOfStackOfOpenElements() !== $element) { // phpcs:ignore
+            // The condition does the job
+        }
     }
 
     /**
@@ -516,6 +552,9 @@ class DomBuilder
 
     /**
      * Checks if a tag with given tag name exists on the stack of open elements.
+     *
+     * @param string $tagName
+     * @param boolean
      */
     public function containsStackOfOpenElements($tagName)
     {
@@ -523,6 +562,25 @@ class DomBuilder
 
         foreach ($stackOfOpenElements as $node) {
             if ($node instanceof ElementNode && $node->getName() === $tagName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if an element is in the stack of opene elements.
+     *
+     * @param ElementNode $element
+     * @return true
+     */
+    public function stackOfOpenElementsContainsElement($element)
+    {
+        $stackOfOpenElements = array_reverse($this->stackOfOpenElements);
+
+        foreach ($stackOfOpenElements as $elementInStack) {
+            if ($element === $elementInStack) {
                 return true;
             }
         }

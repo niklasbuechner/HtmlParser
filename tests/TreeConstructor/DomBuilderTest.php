@@ -45,9 +45,12 @@ class DomBuilderTest extends TestCase
     {
         $domBuilder = new DomBuilder();
 
-        $domBuilder->popLastElementOfStackOfOpenElements();
-        $domBuilder->popLastElementOfStackOfOpenElements();
-        $domBuilder->popLastElementOfStackOfOpenElements();
+        try {
+            $domBuilder->popLastElementOfStackOfOpenElements();
+            $this->assertEquals('Trying to pop the dom elemnt of the stack, may not succeed.', 'Succeded in poping the document node of the stack');
+        } catch (Exception $ex) {
+            $this->assertTrue(true);
+        }
 
         $this->assertInstanceOf('HtmlParser\TreeConstructor\Nodes\DocumentNode', $domBuilder->getCurrentNode());
     }
@@ -217,5 +220,64 @@ class DomBuilderTest extends TestCase
         $this->assertEquals('u', $domBuilder->getStackOfOpenElements()[5]->getName());
         $this->assertEquals('i', $domBuilder->getStackOfOpenElements()[4]->getName());
         $this->assertEquals('b', $domBuilder->getStackOfOpenElements()[3]->getName());
+    }
+
+    public function testStackofOpenElementsContainsElement()
+    {
+        $elementFactory = new ElementFactory();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+
+        $h1Element = $elementFactory->createElementFromTagName('h1');
+        $domBuilder->insertNode($h1Element);
+
+        $this->assertTrue($domBuilder->stackOfOpenElementsContainsElement($h1Element));
+        $this->assertFalse($domBuilder->stackOfOpenElementsContainsElement($elementFactory->createElementFromTagName('p')));
+    }
+
+    public function testStackofOpenElementsContainsElementWithTagName()
+    {
+        $elementFactory = new ElementFactory();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('h1'));
+
+        $this->assertTrue($domBuilder->containsStackOfOpenElements('h1'));
+        $this->assertFalse($domBuilder->containsStackOfOpenElements('p'));
+    }
+
+    public function testRemoveElementsOfStackOfOpenElementsUntilElementWithNameWasFound()
+    {
+        $elementFactory = new ElementFactory();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('u'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('i'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('strong'));
+
+        $domBuilder->popElementsOfStackOfOpenElementsUntilElementWithName('p');
+
+        $this->assertCount(3, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('body', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testRemoveElementsOfStackOfOpenElementsUntilElementWasFound()
+    {
+        $elementFactory = new ElementFactory();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+
+        $formElement = $elementFactory->createElementFromTagName('form');
+        $domBuilder->insertNode($formElement);
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('u'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('i'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('strong'));
+
+        $domBuilder->popElementsOfStackOfOpenElementsUntilElement($formElement);
+
+        $this->assertCount(3, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('body', $domBuilder->getCurrentNode()->getName());
     }
 }

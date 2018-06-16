@@ -444,4 +444,181 @@ class InBodyInsertionModeTest extends TestCase
         $this->assertCount(4, $domBuilder->getStackOfOpenElements());
         $this->assertFalse($domBuilder->getFramesetOkayFlag());
     }
+
+    public function testGeneralEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('address'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('dd'));
+
+        $addressEndTag = new EndTagToken();
+        $addressEndTag->appendCharacterToName('address');
+
+        $inBodyInsertionMode->processToken($addressEndTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(3, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('body', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testFosterGeneralEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('dd'));
+
+        $addressEndTag = new EndTagToken();
+        $addressEndTag->appendCharacterToName('address');
+
+        $inBodyInsertionMode->processToken($addressEndTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(5, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('dd', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testFormEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('form'));
+        $domBuilder->setFormPointerToCurrentNode();
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($domBuilder->getCurrentNode());
+
+        $endFormTag = new EndTagToken();
+        $endFormTag->appendCharacterToName('form');
+
+        $inBodyInsertionMode->processToken($endFormTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertNull($domBuilder->getFormPointer());
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('b', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testFormEndTagInTemplate()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('template'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('form'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('b'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($domBuilder->getCurrentNode());
+
+        $endFormTag = new EndTagToken();
+        $endFormTag->appendCharacterToName('form');
+
+        $inBodyInsertionMode->processToken($endFormTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(5, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('b', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testPEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+
+        $pTag = new EndTagToken();
+        $pTag->appendCharacterToName('p');
+
+        $inBodyInsertionMode->processToken($pTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(3, $domBuilder->getStackOfOpenElements());
+    }
+
+    public function testFosterPEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $pTag = new EndTagToken();
+        $pTag->appendCharacterToName('p');
+
+        $inBodyInsertionMode->processToken($pTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(3, $domBuilder->getStackOfOpenElements());
+        $this->assertCount(1, $domBuilder->getCurrentNode()->getChildren());
+    }
+
+    public function testLiEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('ul'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('li'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('hello'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+
+        $liTag = new EndTagToken();
+        $liTag->appendCharacterToName('li');
+
+        $inBodyInsertionMode->processToken($liTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+    }
+
+    public function testDtEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('ul'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('dt'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('hello'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+
+        $dtTag = new EndTagToken();
+        $dtTag->appendCharacterToName('dt');
+
+        $inBodyInsertionMode->processToken($dtTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+    }
+
+    public function testHeadingEndTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('ul'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('h1'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('hello'));
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('p'));
+
+        $h1Tag = new EndTagToken();
+        $h1Tag->appendCharacterToName('h1');
+
+        $inBodyInsertionMode->processToken($h1Tag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+    }
 }
