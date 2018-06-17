@@ -3,6 +3,9 @@ namespace HtmlParser\TreeConstructor;
 
 use Exception;
 use HtmlParser\TreeConstructor\DomBuilder\ActiveFormattingMarker;
+use HtmlParser\TreeConstructor\DomBuilder\Algorithms\ReconstructActiveFormattingList;
+use HtmlParser\TreeConstructor\DomBuilder\ListOfActiveFormattingElements;
+use HtmlParser\TreeConstructor\DomBuilder\StackOfOpenElements;
 use HtmlParser\TreeConstructor\Nodes\CommentNode;
 use HtmlParser\TreeConstructor\Nodes\DocumentNode;
 use HtmlParser\TreeConstructor\Nodes\ElementNode;
@@ -52,8 +55,8 @@ class DomBuilder
 
     public function __construct()
     {
-        $this->stackOfOpenElements = [new DocumentNode()];
-        $this->listOfActiveFormattingElements = [];
+        $this->stackOfOpenElements = new StackOfOpenElements();
+        $this->listOfActiveFormattingElements = new ListOfActiveFormattingElements();
         $this->framesetOkayFlag = true;
         $this->tagsToGenerateEndTags = [
             'dd',
@@ -180,7 +183,7 @@ class DomBuilder
      */
     public function getDocumentNode()
     {
-        return $this->stackOfOpenElements[0];
+        return $this->stackOfOpenElements->getElements()[0];
     }
 
     /**
@@ -208,7 +211,7 @@ class DomBuilder
      */
     public function pushHeadToStackOfOpenElements()
     {
-        $this->addElementToStackOfOpenElements($this->getHeadPointer());
+        $this->stackOfOpenElements->add($this->getHeadPointer());
     }
 
     /**
@@ -274,7 +277,7 @@ class DomBuilder
      */
     public function getStackOfOpenElements()
     {
-        return $this->stackOfOpenElements;
+        return $this->stackOfOpenElements->getElements();
     }
 
     /**
@@ -284,7 +287,7 @@ class DomBuilder
      */
     public function getCurrentNode()
     {
-        return $this->stackOfOpenElements[count($this->stackOfOpenElements) - 1];
+        return $this->stackOfOpenElements->getCurrentNode();
     }
 
     /**
@@ -313,7 +316,7 @@ class DomBuilder
      */
     public function getListOfActiveFormattingElements()
     {
-        return $this->listOfActiveFormattingElements;
+        return $this->listOfActiveFormattingElements->getElements();
     }
 
     /**
@@ -333,18 +336,17 @@ class DomBuilder
      */
     public function insertNode(ElementNode $node)
     {
-        $this->getCurrentNode()->appendChild($node);
-        $this->addElementToStackOfOpenElements($node);
+        $this->stackOfOpenElements->insertNode($node);
     }
 
     /**
-     * Pushs an element onto the stack of open elements.
+     * Removes an element from the stack of open elements.
      *
-     * @param ElementNode $node
+     * @param ElementNode $element
      */
-    private function addElementToStackOfOpenElements(ElementNode $node)
+    public function removeElementFromStackOfOpenElements(ElementNode $element)
     {
-        $this->stackOfOpenElements[] = $node;
+        $this->stackOfOpenElements->removeElement($element);
     }
 
     /**
@@ -354,12 +356,7 @@ class DomBuilder
      */
     public function popLastElementOfStackOfOpenElements()
     {
-        // Do not pop document node off of stack of open elements.
-        if (count($this->stackOfOpenElements) === 1) {
-            throw new Exception('You can not pop the document node of the stack of open elements.');
-        }
-
-        return array_pop($this->stackOfOpenElements);
+        return $this->stackOfOpenElements->pop();
     }
 
     /**
@@ -370,9 +367,7 @@ class DomBuilder
      */
     public function popElementsOfStackOfOpenElementsUntilElementWithName($name)
     {
-        while ($this->popLastElementOfStackOfOpenElements()->getName() !== $name) { // phpcs:ignore
-            // The condition does the job
-        }
+        $this->stackOfOpenElements->popUntilElementWithName($name);
     }
 
     /**
@@ -383,9 +378,7 @@ class DomBuilder
      */
     public function popElementsOfStackOfOpenElementsUntilElement($element)
     {
-        while ($this->popLastElementOfStackOfOpenElements() !== $element) { // phpcs:ignore
-            // The condition does the job
-        }
+        $this->stackOfOpenElements->popUntilElement($element);
     }
 
     /**
@@ -413,7 +406,7 @@ class DomBuilder
      */
     public function pushMarkerOntoListOfActiveFormattingElements()
     {
-        $this->listOfActiveFormattingElements[] = new ActiveFormattingMarker();
+        $this->listOfActiveFormattingElements->add(new ActiveFormattingMarker());
     }
 
     /**
@@ -423,7 +416,18 @@ class DomBuilder
      */
     public function pushElementOntoListOfActiveFormattingElements(ElementNode $element)
     {
-        $this->listOfActiveFormattingElements[] = $element;
+        $this->listOfActiveFormattingElements->add($element);
+    }
+
+    /**
+     * Checks if an element is is in the list of active formatting elements before a marker is found.
+     *
+     * @param string $tagName
+     * @return boolean
+     */
+    public function doesListOfActiveFormattingElementsContainBeforeMarker($tagName)
+    {
+        return $this->listOfActiveFormattingElements->containsTagNameBeforeMarker($tagName);
     }
 
     /**
@@ -431,76 +435,10 @@ class DomBuilder
      */
     public function reconstructActiveFormattingList()
     {
-        if (count($this->listOfActiveFormattingElements) === 0) {
-            return;
-        }
-
-        $reversetActiveFormattingList = array_reverse($this->listOfActiveFormattingElements);
-        $entry = $reversetActiveFormattingList[0];
-
-        if ($entry instanceof ActiveFormattingMarker || $this->containsStackOfOpenElements($entry->getName())) {
-            return;
-        }
-
-        $this->handlePossibleLastElement($entry, $reversetActiveFormattingList, 0);
-    }
-
-    /**
-     * Checks if the element is the last element in the list of active formatting elements
-     * and handles its processing.
-     *
-     * @param ElementNode $entry
-     * @param ElementNode[] $reverseActiveFormattingList
-     * @param int $lastIndex
-     */
-    private function handlePossibleLastElement($entry, $reversetActiveFormattingList, $lastIndex)
-    {
-        if (count($reversetActiveFormattingList) === $lastIndex + 1) {
-            $this->reinsertElement($entry, $reversetActiveFormattingList, $lastIndex);
-        } else {
-            $this->advanceOneElement($reversetActiveFormattingList, $lastIndex);
-        }
-    }
-
-    /**
-     * Walks back one element in the list of active formatting elements in order to find the end
-     * of the list or a marker to start reopening the not yet closed tags.
-     *
-     * @param ElementNode[] $reverseActiveFormattingList
-     * @param int $lastIndex
-     */
-    private function advanceOneElement($reversetActiveFormattingList, $lastIndex)
-    {
-        $lastIndex += 1;
-        $entry = $reversetActiveFormattingList[$lastIndex];
-
-        if ($entry instanceof ActiveFormattingMarker || $this->containsStackOfOpenElements($entry->getName())) {
-            $lastIndex -= 1;
-            $entry = $reversetActiveFormattingList[$lastIndex];
-            $this->reinsertElement($entry, $reversetActiveFormattingList, $lastIndex);
-        } else {
-            $this->handlePossibleLastElement($entry, $reversetActiveFormattingList, $lastIndex);
-        }
-    }
-
-    /**
-     * Reinserts an active formatting element into the stack of open elements and recursivly reinserts
-     * all elements after that.
-     *
-     * @param ElementNode $entry
-     * @param ElementNode[] $reverseActiveFormattingList
-     * @param int $lastIndex
-     */
-    private function reinsertElement($entry, $reversetActiveFormattingList, $lastIndex)
-    {
-        $newEntry = clone $entry;
-        $this->insertNode($newEntry);
-        $reversetActiveFormattingList[$lastIndex] = $newEntry;
-
-        if ($lastIndex !== 0) {
-            $lastIndex -= 1;
-            $this->reinsertElement($reversetActiveFormattingList[$lastIndex], $reversetActiveFormattingList, $lastIndex);
-        }
+        ReconstructActiveFormattingList::reconstructActiveFormattingList(
+            $this->listOfActiveFormattingElements,
+            $this->stackOfOpenElements
+        );
     }
 
     /**
@@ -508,9 +446,7 @@ class DomBuilder
      */
     public function clearListOfActiveFormattingElementsToNextMarker()
     {
-        while (!(array_pop($this->listOfActiveFormattingElements) instanceof ActiveFormattingMarker)) { // phpcs:ignore
-            // The condition does the job
-        }
+        $this->listOfActiveFormattingElements->clearUntilMarker();
     }
 
     /**
@@ -558,34 +494,18 @@ class DomBuilder
      */
     public function containsStackOfOpenElements($tagName)
     {
-        $stackOfOpenElements = array_reverse($this->stackOfOpenElements);
-
-        foreach ($stackOfOpenElements as $node) {
-            if ($node instanceof ElementNode && $node->getName() === $tagName) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->stackOfOpenElements->containsTagName($tagName);
     }
 
     /**
-     * Checks if an element is in the stack of opene elements.
+     * Checks if an element is in the stack of open elements.
      *
      * @param ElementNode $element
      * @return true
      */
     public function stackOfOpenElementsContainsElement($element)
     {
-        $stackOfOpenElements = array_reverse($this->stackOfOpenElements);
-
-        foreach ($stackOfOpenElements as $elementInStack) {
-            if ($element === $elementInStack) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->stackOfOpenElements->contains($element);
     }
 
     /**
@@ -597,19 +517,7 @@ class DomBuilder
      */
     public function stackOfOpenElementsContainsElementInScope($tagName, $unwantedTagNames)
     {
-        $stackOfOpenElements = array_reverse($this->getStackOfOpenElements());
-
-        foreach ($stackOfOpenElements as $elementInStack) {
-            if ($elementInStack->getName() === $tagName) {
-                return true;
-            }
-
-            if (in_array($elementInStack->getName(), $unwantedTagNames)) {
-                return false;
-            }
-        }
-
-        return false;
+        return $this->stackOfOpenElements->containsTagNameInScope($tagName, $unwantedTagNames);
     }
 
     /**

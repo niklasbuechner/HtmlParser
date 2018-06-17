@@ -11,11 +11,6 @@ class ElementNode
     private $name;
 
     /**
-     * @var Node
-     */
-    private $parent;
-
-    /**
      * @var AttributeStruct
      */
     private $attributes;
@@ -27,7 +22,6 @@ class ElementNode
 
     /**
      * @param string $name
-     * @param DocumentNode|ElementNode $parent
      */
     public function __construct($name, $attributes = [])
     {
@@ -103,5 +97,13 @@ class ElementNode
                 return;
             }
         }
+    }
+
+    /**
+     * Removes all children from the element.
+     */
+    public function removeChildren()
+    {
+        $this->children = [];
     }
 }
