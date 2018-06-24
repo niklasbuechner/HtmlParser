@@ -3,6 +3,7 @@ namespace HtmlParser\TreeConstructor;
 
 use Exception;
 use HtmlParser\TreeConstructor\DomBuilder\ActiveFormattingMarker;
+use HtmlParser\TreeConstructor\DomBuilder\Algorithms\AdoptionAgencyAlgorithm;
 use HtmlParser\TreeConstructor\DomBuilder\Algorithms\ReconstructActiveFormattingList;
 use HtmlParser\TreeConstructor\DomBuilder\ListOfActiveFormattingElements;
 use HtmlParser\TreeConstructor\DomBuilder\StackOfOpenElements;
@@ -13,6 +14,11 @@ use HtmlParser\TreeConstructor\Nodes\TextNode;
 
 class DomBuilder
 {
+    /**
+     * @var AdoptionAgencyAlgorithm
+     */
+    private $adoptionAgencyAlgorithm;
+
     /**
      * @var ElementNode
      */
@@ -55,6 +61,7 @@ class DomBuilder
 
     public function __construct()
     {
+        $this->adoptionAgencyAlgorithm = new AdoptionAgencyAlgorithm();
         $this->stackOfOpenElements = new StackOfOpenElements();
         $this->listOfActiveFormattingElements = new ListOfActiveFormattingElements();
         $this->framesetOkayFlag = true;
@@ -398,6 +405,7 @@ class DomBuilder
             return;
         }
 
+        $this->reconstructActiveFormattingList();
         $this->getCurrentNode()->getLastChild()->appendToData($character);
     }
 
@@ -554,5 +562,31 @@ class DomBuilder
         $specialTags = array_diff($this->tagsWithSpecialParsingRules, $blacklist);
 
         return in_array($tagName, $specialTags);
+    }
+
+    /**
+     * Runs the adoption agency algorithm for a token.
+     *
+     * @param Token $token
+     * @param InsertionMode $insertionMode
+     */
+    public function runAdoptionAgencyAlgorithm($token, $insertionMode)
+    {
+        if ($this->adoptionAgencyAlgorithm->runAdoptionAgencyAlgorithm($token, $this->stackOfOpenElements, $this->listOfActiveFormattingElements) === AdoptionAgencyAlgorithm::TREAT_AS_ANY_OTHER_END_TAG) {
+            $node = $this->getCurrentNode();
+
+            while (true) {
+                if ($node->getName() === $token->getName()) {
+                    $this->generateImpliedEndTags([$token->getName()]);
+                    $this->stackOfOpenElements->popUntilElement($node);
+
+                    return;
+                } elseif ($this->isSpecialTag($node->getName())) {
+                    return;
+                }
+
+                $node = $this->getCurrentNode();
+            }
+        }
     }
 }

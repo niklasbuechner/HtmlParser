@@ -219,6 +219,14 @@ class InBodyInsertionMode implements InsertionMode
 
             $domBuilder->insertNode($elementFactory->createElementFromToken($token));
             $domBuilder->setFramesetOkayFlag(false);
+        } elseif ($token->getName() === 'a') {
+            if ($domBuilder->doesListOfActiveFormattingElementsContainBeforeMarker('a')) {
+                $domBuilder->runAdoptionAgencyAlgorithm($token, $this);
+            }
+
+            $domBuilder->reconstructActiveFormattingList();
+            $domBuilder->insertNode($elementFactory->createElementFromToken($token));
+            $domBuilder->pushElementOntoListOfActiveFormattingElements($domBuilder->getCurrentNode());
         }
     }
 

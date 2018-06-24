@@ -621,4 +621,39 @@ class InBodyInsertionModeTest extends TestCase
 
         $this->assertCount(4, $domBuilder->getStackOfOpenElements());
     }
+
+    public function testLinkTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $aTag = new StartTagToken();
+        $aTag->appendCharacterToName('a');
+
+        $inBodyInsertionMode->processToken($aTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        $this->assertEquals('a', $domBuilder->getCurrentNode()->getName());
+    }
+
+    public function testNestedLinkTag()
+    {
+        $treeConstructor = new TreeConstructor();
+        $domBuilder = TestDomBuilderFactory::getDomBuilderWithBodyElement();
+        $elementFactory = new ElementFactory();
+        $inBodyInsertionMode = new InBodyInsertionMode();
+
+        $domBuilder->insertNode($elementFactory->createElementFromTagName('a'));
+        $domBuilder->pushElementOntoListOfActiveFormattingElements($domBuilder->getCurrentNode());
+
+        $aTag = new StartTagToken();
+        $aTag->appendCharacterToName('a');
+
+        $inBodyInsertionMode->processToken($aTag, $treeConstructor, $elementFactory, $domBuilder);
+
+        // $this->assertCount(4, $domBuilder->getStackOfOpenElements());
+        // $this->assertEquals('a', $domBuilder->getCurrentNode()->getName());
+    }
 }

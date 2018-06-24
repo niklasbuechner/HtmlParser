@@ -119,20 +119,23 @@ class StackOfOpenElements
     }
 
     /**
-     * Removes an element from the stack of open elements.
+     * Inserts a node at a certain position.
      *
-     * @param ElementNode $element
+     * @param ElementNode $node
+     * @param int $position
      */
-    public function removeElement(ElementNode $element)
+    public function insertNodeAtPosition(ElementNode $node, $position)
     {
-        $elementIndex = array_search($element, $this->openElements);
+        $previousOpenElements = $this->openElements;
+        $this->openElements = [];
 
-        if ($elementIndex === false) {
-            return;
+        foreach ($previousOpenElements as $index => $element) {
+            if ($index === $position) {
+                $this->insertNode($node);
+            }
+
+            $this->openElements[] = $element;
         }
-
-        unset($this->openElements[$elementIndex]);
-        $this->openElements = array_values($this->openElements);
     }
 
     /**
@@ -173,6 +176,36 @@ class StackOfOpenElements
     {
         while ($this->pop() !== $element) { // phpcs:ignore
             // The condition does the job
+        }
+    }
+
+    /**
+     * Removes an element from the stack of open elements.
+     *
+     * @param ElementNode $element
+     */
+    public function removeElement(ElementNode $element)
+    {
+        $elementIndex = array_search($element, $this->openElements);
+
+        if ($elementIndex === false) {
+            return;
+        }
+
+        unset($this->openElements[$elementIndex]);
+        $this->openElements = array_values($this->openElements);
+    }
+
+    /**
+     * Replaces a node at a given position.
+     *
+     * @param ElementNode $node
+     * @param int $position
+     */
+    public function replaceNodeAtPosition(ElementNode $node, $position)
+    {
+        if ($position >= 0 && $position < count($this->openElements)) {
+            $this->openElements[$position] = $node;
         }
     }
 }
